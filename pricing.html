@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brane — Pricing</title>
+<meta name="description" content="Simple, transparent pricing for Brane brand identity and Brane OD." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFFFFF;
+    --bg-soft: #F6F6F7;
+    --paper: #FFFFFF;
+    --ink: #1A1A1A;
+    --ink-soft: #5B5D62;
+    --ink-faint: #63666B;
+    --green: #008060;
+    --green-dark: #004C3F;
+    --green-light: #95BF47;
+    --line: #E1E3E5;
+    --line-soft: #ECEDEF;
+    --radius: 10px;
+    --radius-lg: 20px;
+    --shadow-sm: 0 1px 2px rgba(26,26,26,0.05), 0 6px 20px rgba(26,26,26,0.06);
+    --shadow-lg: 0 20px 60px -20px rgba(0,76,63,0.28), 0 4px 16px rgba(26,26,26,0.06);
+    --font-display: 'Inter Tight', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --focus-ring: 0 0 0 3px rgba(0,128,96,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  a { color: inherit; text-decoration: none; }
+  ul { list-style: none; margin: 0; padding: 0; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* ---------- Nav ---------- */
+  header.nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px clamp(20px, 4vw, 64px);
+    background: rgba(255,255,255,0.82);
+    backdrop-filter: blur(14px) saturate(1.4);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .brandmark { display: flex; align-items: center; gap: 10px; }
+  .brandmark .shield-sm { width: 24px; height: 24px; flex-shrink: 0; }
+  .brandmark .shield-sm path.outline { fill: none; stroke: var(--green-dark); stroke-width: 2.4; }
+  .brandmark .shield-sm path.fill { fill: var(--green); }
+  .brandmark span.wordmark { font-family: var(--font-display); font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+
+  nav.links { display: flex; align-items: center; gap: 28px; flex-shrink: 0; }
+  nav.links a.navlink { font-size: 14px; font-weight: 600; color: var(--ink-soft); transition: color 0.15s ease; white-space: nowrap; }
+  nav.links a.navlink:hover { color: var(--ink); }
+  nav.links a.navlink.active { color: var(--ink); }
+
+  .btn {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 999px;
+    padding: 11px 22px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+  .btn-primary { background: var(--green); color: #fff; box-shadow: 0 2px 6px rgba(0,76,63,0.22); }
+  .btn-primary:hover { background: var(--green-dark); box-shadow: 0 4px 12px rgba(0,76,63,0.3); }
+  .btn-ghost { background: transparent; color: var(--ink-soft); border: none; padding-left: 8px; padding-right: 8px; box-shadow: none; }
+  .btn-ghost:hover { color: var(--ink); }
+  .btn-outline-card {
+    background: transparent;
+    color: var(--green-dark);
+    border: 1.5px solid var(--line);
+    box-shadow: none;
+  }
+  .btn-outline-card:hover { border-color: var(--green); background: rgba(0,128,96,0.04); }
+  .btn-lg { padding: 16px 34px; font-size: 15.5px; min-height: 48px; }
+  .btn-block { width: 100%; justify-content: center; border-radius: var(--radius); padding: 13px 20px; }
+
+  /* ---------- Layout ---------- */
+  .section { padding: clamp(64px, 10vw, 128px) clamp(20px, 4vw, 64px); }
+  .section-inner { max-width: 1120px; margin: 0 auto; }
+
+  .eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--green-dark);
+    margin-bottom: 14px;
+    display: inline-block;
+  }
+
+  h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; letter-spacing: -0.02em; color: var(--ink); }
+
+  .section-header { text-align: center; margin-bottom: 48px; }
+  .section-header h2 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; max-width: 20ch; margin: 0 auto; }
+  p.section-sub { color: var(--ink-soft); font-size: 16px; max-width: 52ch; margin: 14px auto 0; line-height: 1.6; }
+
+  /* ---------- Reveal ---------- */
+  .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ---------- Pricing ---------- */
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    align-items: start;
+  }
+  @media (max-width: 860px) {
+    .pricing-grid { grid-template-columns: 1fr; max-width: 480px; margin-left: auto; margin-right: auto; }
+  }
+
+  .pricing-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 30px 26px 28px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+  }
+  .pricing-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-sm); }
+
+  .pricing-card.featured {
+    border-color: var(--green);
+    box-shadow: 0 0 0 1px var(--green), var(--shadow-lg);
+    transform: translateY(-6px);
+  }
+  .pricing-card.featured:hover { transform: translateY(-10px); }
+
+  .pricing-badge {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--green);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  /* Tool tag — reuses .doc-tag pattern from index.html */
+  .pricing-tool-tag {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green-dark);
+    background: rgba(0,128,96,0.08);
+    padding: 5px 12px;
+    border-radius: 999px;
+    display: inline-block;
+    align-self: flex-start;
+    margin-bottom: 16px;
+  }
+  .pricing-tool-tag.od {
+    background: rgba(149,191,71,0.12);
+    color: #3a6015;
+  }
+
+  .pricing-plan-name {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+
+  .pricing-desc {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    margin: 0 0 24px;
+  }
+
+  /* Price — mirrors .metric .num */
+  .pricing-amount {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    margin-bottom: 4px;
+  }
+  .pricing-amount .currency {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    line-height: 1;
+    margin-top: 6px;
+  }
+  .pricing-amount .price {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    line-height: 1;
+  }
+  .pricing-amount .period {
+    font-size: 13px;
+    color: var(--ink-faint);
+    margin-bottom: 3px;
+  }
+
+  .pricing-free-label {
+    font-family: var(--font-display);
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .pricing-sublabel {
+    font-size: 12.5px;
+    color: var(--ink-faint);
+    margin-bottom: 0;
+    min-height: 18px;
+  }
+
+  /* Divider — matches .doc-block border pattern */
+  .pricing-divider {
+    height: 1px;
+    background: var(--line-soft);
+    margin: 22px 0;
+  }
+
+  /* Feature list — mirrors .trust-pill checkmark style */
+  .pricing-features {
+    list-style: none;
+    margin: 0 0 28px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    flex-grow: 1;
+  }
+
+  .pricing-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--ink);
+    line-height: 1.45;
+  }
+
+  .pricing-features li .pf-icon {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--green);
+  }
+  .pricing-features li .pf-icon.lock {
+    color: var(--line);
+  }
+  .pricing-features li.dim {
+    color: var(--ink-faint);
+  }
+
+  .pricing-cta { margin-top: auto; }
+
+  /* ---------- Bottom note ---------- */
+  .pricing-note {
+    font-size: 13px;
+    color: var(--ink-faint);
+    text-align: center;
+    margin-top: 40px;
+  }
+  .pricing-note a {
+    color: var(--green-dark);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ---------- Final CTA — mirrors index.html ---------- */
+  .cta-final {
+    background: linear-gradient(160deg, var(--green-dark), #003831);
+    border-radius: 28px;
+    padding: clamp(48px, 8vw, 80px) clamp(24px, 5vw, 64px);
+    text-align: center;
+    color: #fff;
+    max-width: 1120px;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-final::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(600px 300px at 50% -20%, rgba(149,191,71,0.35), transparent 65%);
+  }
+  .cta-final > * { position: relative; z-index: 1; }
+  .cta-final h2 { font-size: clamp(28px, 4.4vw, 42px); font-weight: 800; max-width: 20ch; margin: 0 auto; color: #fff; }
+  .cta-final p { color: rgba(255,255,255,0.68); font-size: 16px; max-width: 46ch; margin: 16px auto 30px; line-height: 1.6; }
+  .cta-btns { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; align-items: center; }
+  .cta-final .btn-ghost { color: rgba(255,255,255,0.7); }
+  .cta-final .btn-ghost:hover { color: #fff; }
+
+  /* ---------- Footer — exact match to index.html ---------- */
+  footer.site {
+    padding: 40px clamp(20px, 4vw, 64px);
+    border-top: 1px solid var(--line-soft);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  footer.site .fmark { display: flex; align-items: center; gap: 8px; color: var(--ink-soft); font-size: 13px; }
+  footer.site .flinks { display: flex; gap: 22px; }
+  footer.site .flinks a { font-size: 13px; color: var(--ink-soft); }
+  footer.site .flinks a:hover { color: var(--ink); }
+
+  @media (max-width: 480px) {
+    .btn { min-height: 44px; }
+    .pricing-amount .price, .pricing-free-label { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Nav — mirrors index.html header exactly -->
+<header class="nav">
+  <a href="index.html" class="brandmark" aria-label="Brane home">
+    <svg class="shield-sm" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path class="outline" d="M24 4 L42 11 V23 C42 34 34 42 24 45 C14 42 6 34 6 23 V11 Z"/>
+      <path class="fill" d="M24 10 L38 16 V23 C38 31 32 37.5 24 40 C16 37.5 10 31 10 23 V16 Z"/>
+    </svg>
+    <span class="wordmark">Brane</span>
+  </a>
+  <nav class="links" id="navLinks" aria-label="Site navigation">
+    <a class="navlink" href="index.html">Home</a>
+    <a class="navlink" href="index.html#how">How it works</a>
+    <a class="navlink" href="index.html#trust">Trust</a>
+    <a class="navlink active" href="pricing.html">Pricing</a>
+    <a class="navlink" href="od.html">Brane OD</a>
+  </nav>
+  <a class="btn btn-primary" href="app.html">Build my brand</a>
+</header>
+
+<!-- Pricing Hero -->
+<section class="section" style="padding-bottom: 0;">
+  <div class="section-inner">
+    <div class="section-header reveal">
+      <span class="eyebrow">Pricing</span>
+      <h2>One suite, two tools, one clear price.</h2>
+      <p class="section-sub">Build your brand for free. Unlock unlimited generations and organizational diagnostics for $4.99 / month.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Cards -->
+<section class="section" style="padding-top: 40px;">
+  <div class="section-inner">
+
+    <div class="pricing-grid">
+
+      <!-- FREE -->
+      <div class="pricing-card reveal">
+        <span class="pricing-tool-tag">Brane</span>
+        <div class="pricing-plan-name">Free</div>
+        <p class="pricing-desc">Everything you need to start. Full brand identity system, five times a month — no card required.</p>
+        <div class="pricing-free-label">$0</div>
+        <div class="pricing-sublabel">No credit card needed</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            5 brand generations per month
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Full brand identity system per run
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Strategy, palette, typography &amp; voice
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Brand protection guidance
+          </li>
+          <li class="dim">
+            <svg class="pf-icon lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            Unlimited generations
+          </li>
+          <li class="dim">
+            <svg class="pf-icon lock" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            Brane OD diagnostic
+          </li>
+        </ul>
+        <div class="pricing-cta">
+          <a href="app.html" class="btn btn-outline-card btn-block">Start for free</a>
+        </div>
+      </div>
+
+      <!-- PRO (featured) -->
+      <div class="pricing-card featured reveal">
+        <div class="pricing-badge">Most popular</div>
+        <span class="pricing-tool-tag">Brane + OD</span>
+        <div class="pricing-plan-name">Pro</div>
+        <p class="pricing-desc">Unlimited brand generations and full access to the Brane OD Organizational Development diagnostic.</p>
+        <div class="pricing-amount">
+          <span class="currency">$</span>
+          <span class="price">4.99</span>
+          <span class="period">/ mo</span>
+        </div>
+        <div class="pricing-sublabel">Billed monthly · cancel anytime</div>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            <strong>Unlimited</strong>&nbsp;brand generations
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Full brand identity system
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Strategy, palette, typography &amp; voice
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Brand protection guidance
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            <strong>Brane OD</strong> — organizational diagnostic
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            PDF export of all reports
+          </li>
+        </ul>
+        <div class="pricing-cta">
+          <a href="app.html" class="btn btn-primary btn-block">Get Pro</a>
+        </div>
+      </div>
+
+      <!-- OD explainer -->
+      <div class="pricing-card reveal">
+        <span class="pricing-tool-tag od">Brane OD</span>
+        <div class="pricing-plan-name">What is OD?</div>
+        <p class="pricing-desc">Brane OD is an AI-powered Organizational Development diagnostic — it maps team structure, culture, and growth gaps so leadership can act with clarity.</p>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Team health &amp; culture scan
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Leadership &amp; structure assessment
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Actionable growth recommendations
+          </li>
+          <li>
+            <svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>
+            Downloadable diagnostic report (PDF)
+          </li>
+        </ul>
+        <div class="pricing-cta">
+          <a href="od.html" class="btn btn-outline-card btn-block">See OD in action</a>
+        </div>
+      </div>
+
+    </div><!-- /.pricing-grid -->
+
+    <p class="pricing-note reveal">Questions? Reach us at <a href="mailto:braneup@gmail.com">braneup@gmail.com</a></p>
+
+  </div>
+</section>
+
+<!-- Final CTA — mirrors index.html exactly -->
+<section class="section">
+  <div class="cta-final reveal">
+    <h2>Build a brand that feels intentional from day one.</h2>
+    <p>Start with a simple brief and receive a complete brand identity system.</p>
+    <div class="cta-btns">
+      <a class="btn btn-primary btn-lg" href="app.html">Build my brand</a>
+      <a class="btn btn-ghost btn-lg" href="app.html">Try a sample brief</a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer — exact match to index.html -->
+<footer class="site">
+  <div class="fmark">
+    <svg width="16" height="16" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path fill="#008060" d="M24 4 L42 11 V23 C42 34 34 42 24 45 C14 42 6 34 6 23 V11 Z"/>
+    </svg>
+    Brane — Brane it to brand it
+  </div>
+  <div class="flinks">
+    <a href="app.html">Build my brand</a>
+    <a href="index.html#how">How it works</a>
+    <a href="index.html#trust">Trust</a>
+    <a href="privacy-policy.html">Privacy Policy</a>
+    <a href="terms-and-conditions.html">Terms &amp; Conditions</a>
+  </div>
+</footer>
+
+<script>
+  // Scroll reveal — exact same logic as index.html
+  const revealEls = document.querySelectorAll('.reveal:not(.in)');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+  revealEls.forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
