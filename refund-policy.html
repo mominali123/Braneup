@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Refund Policy — Brane</title>
+<meta name="description" content="Brane's refund policy — how refunds and cancellations work for Brane and Brane OD subscriptions." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FFFFFF;
+    --bg-soft: #F6F6F7;
+    --ink: #1A1A1A;
+    --ink-soft: #5B5D62;
+    --ink-faint: #75777C;
+    --green: #008060;
+    --green-dark: #004C3F;
+    --green-light: #95BF47;
+    --line: #E1E3E5;
+    --line-soft: #ECEDEF;
+    --radius: 10px;
+    --radius-lg: 20px;
+    --shadow-sm: 0 1px 2px rgba(26,26,26,0.05), 0 6px 20px rgba(26,26,26,0.06);
+    --font-display: 'Inter Tight', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --focus-ring: 0 0 0 3px rgba(0,128,96,0.35);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--green-dark); text-decoration: underline; text-underline-offset: 2px; }
+  a:hover { color: var(--green); }
+
+  header {
+    border-bottom: 1px solid var(--line);
+    padding: 20px 24px;
+  }
+  .header-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .logo span { color: var(--green); }
+  .back-link {
+    margin-left: auto;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    text-decoration: none;
+  }
+  .back-link:hover { color: var(--green-dark); }
+
+  main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(36px, 7vw, 56px) clamp(18px, 4vw, 24px) clamp(56px, 10vw, 96px);
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(26px, 6vw, 38px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0 0 8px;
+  }
+  .updated {
+    color: var(--ink-faint);
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0 0 40px;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: clamp(17px, 2.6vw, 20px);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin: 40px 0 12px;
+    padding-top: 8px;
+  }
+  p, li {
+    font-size: clamp(14.5px, 2vw, 15.5px);
+    line-height: 1.7;
+    color: var(--ink-soft);
+    margin: 0 0 14px;
+  }
+  ul { padding-left: 20px; margin: 0 0 14px; }
+  li { margin-bottom: 8px; }
+  strong { color: var(--ink); font-weight: 600; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 20px;
+    font-size: 14px;
+  }
+  th, td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line-soft);
+    vertical-align: top;
+  }
+  th {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--ink);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  td { color: var(--ink-soft); line-height: 1.6; }
+  td strong { color: var(--ink); }
+
+  .card {
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    padding: 24px 28px;
+    margin-top: 48px;
+  }
+  .card h2 { margin-top: 0; }
+  .card a { font-weight: 600; }
+
+  .note {
+    background: rgba(0,128,96,0.06);
+    border: 1px solid rgba(0,128,96,0.18);
+    border-left: 3px solid var(--green);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: var(--ink-soft);
+  }
+  .note strong { color: var(--green-dark); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 24px;
+    text-align: center;
+  }
+  footer p { font-size: 13px; color: var(--ink-faint); margin: 0; }
+
+  @media (max-width: 420px) {
+    header { padding: 16px 18px; }
+    .logo { font-size: 18px; }
+    .back-link { font-size: 13px; }
+    .card { padding: 20px; }
+    table, thead, tbody, th, td, tr { display: block; }
+    th { border-bottom: none; padding-bottom: 2px; }
+    td { border-bottom: 1px solid var(--line-soft); padding: 6px 0 14px; }
+    tr { margin-bottom: 6px; }
+  }
+
+  @media (min-width: 1400px) {
+    main { max-width: 800px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">Br<span>a</span>ne</div>
+    <a class="back-link" href="/">← Back to Brane</a>
+  </div>
+</header>
+
+<main>
+  <h1>Refund Policy</h1>
+  <p class="updated">Last updated: July 26, 2026</p>
+
+  <p>This policy explains how refunds and cancellations work for Brane and Brane OD ("Brane," "we," "us," "our"). It applies alongside our <a href="terms-and-conditions.html">Terms and Conditions</a> and <a href="privacy-policy.html">Privacy Policy</a>.</p>
+
+  <h2>1. Free Plan</h2>
+  <p>Brane's Free plan requires no payment and no card, so there's nothing to refund. You can use your five monthly brand generations at no cost, with no obligation to upgrade.</p>
+
+  <h2>2. Pro Subscription Billing</h2>
+  <p>The Pro plan ($4.99/month) is billed on a recurring monthly basis starting the day you subscribe, and renews automatically each month until you cancel. You can cancel at any time — see Section 5.</p>
+
+  <h2>3. Refund Eligibility</h2>
+  <div class="note"><strong>Short version:</strong> if you were charged in the last 7 days and haven't made meaningful use of Pro-only features that billing cycle, we'll refund you — just email us.</div>
+  <table>
+    <thead>
+      <tr><th>Situation</th><th>What happens</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Requested within 7 days of a charge</strong></td>
+        <td>Eligible for a full refund of that charge, provided the Pro-only features (unlimited generations, Brane OD) weren't substantially used during that billing period.</td>
+      </tr>
+      <tr>
+        <td><strong>Duplicate or accidental charge</strong></td>
+        <td>Always refunded in full once verified — this isn't subject to the 7-day window.</td>
+      </tr>
+      <tr>
+        <td><strong>Requested after 7 days</strong></td>
+        <td>Generally not refunded for that billing period, but your cancellation stops all future renewals.</td>
+      </tr>
+      <tr>
+        <td><strong>Partial month after cancelling</strong></td>
+        <td>We don't prorate or refund the unused portion of a billing cycle — cancelling stops the <em>next</em> renewal, and you keep Pro access through the end of the period you already paid for.</td>
+      </tr>
+      <tr>
+        <td><strong>Service outage or technical failure on our end</strong></td>
+        <td>If Brane was unable to generate your brand or OD report due to a fault on our side and you couldn't get a usable result, contact us for a refund or credit.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>4. How to Request a Refund</h2>
+  <p>Email <a href="mailto:braneup@gmail.com">braneup@gmail.com</a> with the email address on your account and the approximate date of the charge. We aim to respond within 2 business days and, once approved, refunds are issued to your original payment method and typically appear within 5–10 business days depending on your bank or card provider.</p>
+
+  <h2>5. Cancelling Your Subscription</h2>
+  <p>You can cancel your Pro subscription at any time from your account settings, or by emailing us at the address above if you don't have access to your account. Cancelling stops future billing immediately — you won't be charged again, and you keep Pro access until the end of the period you've already paid for.</p>
+
+  <h2>6. Chargebacks</h2>
+  <p>If you believe you were charged in error, we'd appreciate the chance to make it right directly — please reach out before filing a chargeback with your bank or card issuer. Chargebacks take longer to resolve and may temporarily affect access to your account while they're investigated.</p>
+
+  <h2>7. Changes to This Policy</h2>
+  <p>We may update this policy from time to time, for example if our pricing or billing structure changes. Continued use of Brane after changes are posted means you accept the updated policy.</p>
+
+  <div class="card">
+    <h2>Questions or Concerns</h2>
+    <p>If you have any question about a charge or a refund, contact us directly at <a href="mailto:braneup@gmail.com">braneup@gmail.com</a> and we'll work with you to resolve it.</p>
+  </div>
+</main>
+
+<footer>
+  <p>&copy; 2026 Brane. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
