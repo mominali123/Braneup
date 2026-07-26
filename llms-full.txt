@@ -1,0 +1,161 @@
+# Brane — Full Reference
+
+> This file gives AI assistants and LLM-based tools a complete, structured picture of Brane: what it is, what it produces, how it works, pricing, and policies. For a shorter summary, see /llms.txt.
+
+Website: https://braneup.com
+Contact: braneup@gmail.com
+
+---
+
+## 1. What Brane Is
+
+Brane is an AI-powered brand-identity generator. A user describes their business in a few lines — what it does, who it's for, what values matter to the founder, and what tone they're picturing — and Brane returns a complete, cohesive brand identity system in one pass. Unlike tools that generate just a logo or just a name, Brane decides strategy, visuals, and voice together, so nothing is designed in isolation.
+
+A companion product, **Brane OD**, applies the same "one brief in, one cohesive system out" approach to organizational development: it diagnoses a company's organizational design and culture and produces prioritized, actionable recommendations.
+
+Both products are reached from the same site and account system (braneup.com), share the same sign-in, and are positioned as one suite: "Brane + Brane OD."
+
+---
+
+## 2. Brane — Brand Identity Generator
+
+### Input
+A short brief consisting of:
+- Business name
+- What it does (description)
+- Who it's for (audience) — optional, inferred if omitted
+- Words/values that matter to the founder — optional, inferred if omitted
+- Desired tone — optional, inferred if omitted
+
+### Output
+Brane returns one unified brand identity document containing:
+
+**Strategy**
+- Purpose (the brand's core "why")
+- Vision (5-year aspiration)
+- Mission (how the brand delivers on its purpose day to day)
+- Values (named, each with a description of how it shapes behavior)
+
+**Positioning**
+- Elevator pitch (a 30-second description)
+- Target persona: name, demographics, core pain point
+- Market differentiator (the brand's singular advantage)
+
+**Visual System**
+- A 5-color palette with explicit roles: Dominant, Supporting, Accent, Dark Neutral, Light Neutral — each with a hex code and a rationale tied to brand psychology
+- A typography pairing: a display font and a body font, both real Google Fonts, chosen to work together structurally and emotionally
+- UI kit tokens: suggested border-radius and shadow style, to extend the identity into product/interface design
+
+**Verbal System**
+- Tone-of-voice traits, each with "how to use" and "what to avoid" guidance
+- A tagline
+- Key website messaging: hero header, sub-header, and a short social bio
+
+**Brand Protection**
+- A trademark safety read (Low / Medium / High risk) for the chosen name in context of the industry
+- IP strategy guidance (immediate steps to take)
+- Domain name suggestions
+
+### Example (as shown on the homepage)
+Brief: a neighborhood specialty coffee shop, warm and grounded in tone.
+Output: brand name "Wren & Bramble," pitch "A neighborhood coffee bar for people who miss when things were made slowly, by hand, by someone who knew your name," a green/warm 5-color palette, an Inter Tight (display) / Inter (body) type pairing, tone traits (Warm, Unhurried, Plainspoken, Specific), and domain suggestions like wrenandbramble.com.
+
+### How it works technically
+The browser submits the brief to a serverless endpoint (`/api/generate`) on the same domain. That endpoint holds the AI provider key server-side (never exposed to the browser), calls the underlying language model with a structured system prompt, and returns parsed JSON that the frontend renders into the document view show above. Results can be:
+- Downloaded as a formatted, multi-page PDF (cover page, table of contents, one section per page group, closing page) generated client-side.
+- Saved to the signed-in user's profile (stored server-side, tied to their account) for later viewing or deletion.
+
+---
+
+## 3. Brane OD — Organizational Development Diagnostic
+
+### Input
+A brief consisting of:
+- Organization name
+- What it does (description)
+- Industry — optional, inferred if omitted
+- Size — optional, inferred if omitted
+- Stage / current situation — optional, inferred if omitted
+- What's driving the OD effort (the specific challenge or growing pain) — optional, inferred if omitted
+
+### Output
+Brane OD returns a structured diagnostic grounded in classic organizational-theory frameworks (Daft's contextual and structural dimensions of organizational design, Robbins' organizational culture dimensions, and Cameron & Quinn's competing values framework). It includes:
+
+**Organizational Design — Contextual Dimensions**
+- Goals and strategies: vision, mission, concrete goals, competitive strategy (Low Cost Leadership / Differentiation / Focus), corporate strategy, functional strategy, operational strategy
+- Department/function this diagnostic centers on
+- Departmental technology: type (Craft / Engineering / Routine / Non-routine), task variety (HI/LO), analyzability (HI/LO)
+- Management process (Organic / Mechanistic)
+- Environmental uncertainty: complexity (Simple/Complex) and stability (Stable/Unstable)
+- Prioritized HR activities (4–7 specific items)
+
+**Organizational Design — Structural Dimensions**
+- Structure type (Simple / Functional / Divisional / Team-based / Matrix / Project-based)
+- Centralization (Centralized / Decentralized)
+- Hierarchy of authority (Tall / Medium / Short)
+- Span of control (Narrow / Medium / Wide)
+- Formalization, specialization, and professionalism (each HI / MED / LO)
+- Departmentalization basis (functional, geographical, product, process, and/or customer)
+- A full bureaucracy profile (overall level, formal rules, impersonality, career orientation, division of labor, authority hierarchy, formal selection — each HI/MED/LO)
+- Personnel ratios (total employees, administrative staff, clerical staff, professional staff)
+
+**Organizational Culture**
+- Nine culture dimensions (attention to detail, outcome orientation, people orientation, team orientation, aggressiveness, stability, innovation/risk-taking, efficiency, effectiveness — each HI/MED/LO)
+- Overall culture type (Adaptability/Entrepreneurial / Mission / Clan / Bureaucratic)
+- Material symbols: dress code, transportation policy, perks, benefits, rewards system, physical settings (Traditional/Modern)
+- Cultural transmission: representative stories, rituals/ceremonies, language/jargon, slogans
+- Shared foundations: vision, values, norms, customer care approach, and social obligation/responsibility/responsiveness
+
+**Recommendations**
+- Quick wins (fixable in under 30 days)
+- Priorities for the next 90 days, ordered
+- Risks if the organization doesn't act
+
+Every enumerated field in the diagnostic uses consistent labels (HI/MED/LO, etc.) so results are comparable across runs, and the tool explicitly cross-checks that structure and culture are coherent with each other (e.g., a highly organic/decentralized structure is paired with a culture profile that supports it).
+
+### How it works technically
+Same pattern as the brand tool: the browser calls `/api/generate-od`, which verifies the signed-in user's Firebase ID token, holds the AI provider key server-side, and returns structured JSON rendered into the diagnostic view. The interface includes hover-over glossary definitions for every OD term (e.g. "Span of control," "Bureaucracy," "Aggressiveness") so non-specialists can interpret the report. Reports can be printed/exported to PDF and saved to the user's profile.
+
+---
+
+## 4. Account System
+
+- Sign-in is required to generate output on either tool — there is no anonymous/guest mode.
+- Authentication supports email/password and "Continue with Google."
+- Signed-in users can save generated brands and OD reports to a profile, view them later, or delete them.
+- Saved data is stored server-side (Firestore) under the user's account, not in browser storage, so it's available across devices.
+
+---
+
+## 5. Pricing
+
+| Plan | Price | Brand generations | Brane OD access |
+|---|---|---|---|
+| Free | $0/mo, no card required | 5 per month | Not included |
+| Pro | $4.99/mo, billed monthly, cancel anytime | Unlimited | Included |
+
+Both plans include the full brand identity system per run (strategy, palette, typography, voice, brand protection guidance) and PDF export. Pro adds unlimited generations and full access to the Brane OD diagnostic tool.
+
+---
+
+## 6. Policies (summarized — see full pages for authoritative text)
+
+**Privacy** (https://braneup.com/privacy-policy.html): Brane collects brief content, account information, generated output, and usage data. It does not sell personal information. Data may be shared with service providers (AI processing and hosting), for legal compliance, or as part of a business transfer. Users can request access, correction, or deletion of their data by emailing braneup@gmail.com. Not directed at children under 16.
+
+**Terms and Conditions** (https://braneup.com/terms-and-conditions.html): Users must be 16+ to use Brane. Users retain ownership of their submitted brief content and of the brand output generated for them, subject to compliance with the Terms. Brane makes no guarantee that generated names/output are free of trademark conflicts — users are responsible for their own clearance. The service is provided "as is" without warranties, and liability is limited to the extent permitted by law. Terms may be updated over time.
+
+---
+
+## 7. Pages on this site
+
+- / (https://braneup.com/) — Marketing homepage: hero, how it works, what Brane creates, example output, why founders choose Brane, trust/testimonials, pricing, final CTA.
+- /app.html (https://braneup.com/app.html) — The Brane brand-generator app (sign-in required).
+- /od.html (https://braneup.com/od.html) — The Brane OD diagnostic app (sign-in required).
+- /privacy-policy.html (https://braneup.com/privacy-policy.html) — Privacy Policy.
+- /terms-and-conditions.html (https://braneup.com/terms-and-conditions.html) — Terms and Conditions.
+
+---
+
+## 8. Contact
+
+For any question, concern, privacy request, or support issue: **braneup@gmail.com**

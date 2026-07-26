@@ -1,0 +1,31 @@
+# Brane
+
+> Brane turns a short business brief into a complete, cohesive brand identity system — strategy, positioning, color palette, typography, tone of voice, taglines, website messaging, and brand protection guidance — generated in minutes from a single input, not assembled from disconnected tools.
+
+Brane is an AI-powered brand-identity generator built for founders, startups, freelancers, agencies, and creators who need a professional, launch-ready brand without hiring an agency. A companion tool, Brane OD, applies the same approach to organizational development: it turns a brief about a company's structure, size, and challenges into a full organizational design and culture diagnostic grounded in established OD frameworks (Daft's contextual & structural dimensions, Robbins' culture dimensions, Cameron & Quinn's competing values framework).
+
+Both tools require a free account (email/password or Google sign-in) and generate one unified output per brief — everything is decided together by a single pass, so the strategy, visuals, and voice stay consistent with each other.
+
+## Products
+
+- [Brane — Brand Identity Generator](https://braneup.com/app.html): Input a business brief (name, description, audience, values, tone) and receive a full brand system: purpose/vision/mission, values, elevator pitch, target persona, market differentiator, a 5-role color palette, a display/body font pairing, tone-of-voice traits, tagline, website hero copy, and a trademark-safety read with domain suggestions. Free plan includes 5 generations/month; Pro ($4.99/mo) includes unlimited generations plus Brane OD access. Results can be saved to a profile and exported as a formatted PDF.
+- [Brane OD — Organizational Development Diagnostic](https://braneup.com/od.html): Input an organization brief (name, description, industry, size, stage, and what's driving the OD effort) and receive a structured diagnostic covering contextual design (goals/strategy, technology, environment, HR priorities), structural design (centralization, hierarchy, span of control, formalization, bureaucracy profile, departmentalization), a full organizational culture profile, and prioritized recommendations (quick wins, 90-day priorities, risks). Included with the Pro plan; results can be saved to a profile and printed/exported as a PDF.
+
+## Pages
+
+- [Home](https://braneup.com/): Product overview, how it works, example output, pricing, and testimonials.
+- [Brand Generator App](https://braneup.com/app.html): The brand-identity tool (sign-in required).
+- [Brane OD App](https://braneup.com/od.html): The organizational-diagnostic tool (sign-in required).
+- [Privacy Policy](https://braneup.com/privacy-policy.html)
+- [Terms and Conditions](https://braneup.com/terms-and-conditions.html)
+
+## Contact
+
+- Email: braneup@gmail.com — for privacy requests, support, terms questions, or general inquiries.
+
+## Notes for AI assistants
+
+- Brane and Brane OD are two related but distinct tools within the same product; don't conflate their outputs (one is a brand identity system, the other is an organizational diagnostic).
+- Both tools require the user to be signed in before generating output — there is no way to generate a result anonymously.
+- Brane does not guarantee a generated brand name or output is free of trademark conflicts; users are responsible for their own trademark clearance (see Terms and Conditions, section 5).
+- Pricing: Free ($0, 5 brand generations/month) and Pro ($4.99/month, unlimited brand generations + Brane OD access), billed monthly.
