@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brane Scan — Environmental & Competitive Scan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="pdf-common.js"></script>
+<style>
+  :root{
+    --bg: #FFFFFF;
+    --bg-soft: #F6F6F7;
+    --paper: #FFFFFF;
+    --ink: #1A1A1A;
+    --ink-soft: #6D6D6D;
+    --green: #008060;
+    --green-dark: #004C3F;
+    --green-light: #95BF47;
+    --line: #E1E3E5;
+    --line-soft: #ECEDEF;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow: 0 1px 2px rgba(26,26,26,0.05), 0 6px 20px rgba(26,26,26,0.06);
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg-soft);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 56px 24px 120px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+
+  .shield {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .shield path.outline {
+    fill: none;
+    stroke: var(--green-dark);
+    stroke-width: 2.2;
+  }
+
+  .shield path.fill {
+    fill: var(--green);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .shield.loading path.outline {
+    stroke-dasharray: 120;
+    stroke-dashoffset: 120;
+    animation: draw 1.6s ease-in-out infinite;
+  }
+
+  .shield.sealed path.fill { opacity: 1; }
+
+  @keyframes draw {
+    0% { stroke-dashoffset: 120; }
+    50% { stroke-dashoffset: 0; }
+    100% { stroke-dashoffset: -120; }
+  }
+
+  .brandmark {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .brandmark span {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--ink-soft);
+    text-transform: none;
+    margin-top: 1px;
+  }
+
+  .wrap > .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 44px;
+  }
+
+  @media (max-width: 560px) {
+    .wrap > .card { padding: 28px 22px; }
+  }
+
+  h1.hero {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(30px, 4.6vw, 42px);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+
+  p.sub {
+    color: var(--ink-soft);
+    font-size: 16px;
+    line-height: 1.6;
+    max-width: 52ch;
+    margin: 0 0 40px;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .field label {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
+  }
+
+  .field input,
+  .field textarea {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    outline: none;
+    resize: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder { color: #9A9CA0; }
+
+  .field input:focus,
+  .field textarea:focus {
+    border-color: var(--green);
+    background: var(--paper);
+    box-shadow: 0 0 0 3px rgba(0,128,96,0.12);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+
+  @media (max-width: 560px) {
+    .row { grid-template-columns: 1fr; }
+  }
+
+  .submit-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 6px;
+  }
+
+  button#build {
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    background: var(--green);
+    border: none;
+    padding: 14px 28px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    transition: transform 0.1s ease, background 0.15s ease;
+  }
+
+  button#build:hover { background: var(--green-dark); }
+  button#build:active { transform: translateY(1px); }
+  button#build:disabled { opacity: 0.55; cursor: default; }
+
+  button#build:focus-visible {
+    outline: 2px solid var(--green-dark);
+    outline-offset: 3px;
+  }
+
+  .status {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  .error-box {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: #B02A28;
+    border: 1px solid #F5C2C0;
+    border-left: 3px solid #B02A28;
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    background: #FDF1F0;
+    display: none;
+  }
+
+  .error-box.show { display: block; }
+
+  /* ---------- Results ---------- */
+
+  #result {
+    margin-top: 56px;
+    display: none;
+  }
+
+  #result.show { display: block; }
+
+  .doc-header {
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 20px;
+    margin-bottom: 36px;
+  }
+
+  .eyebrow {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--green-dark);
+    margin-bottom: 10px;
+  }
+
+  .doc-header h2 {
+    font-family: var(--font-display);
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+
+  section.block {
+    margin-bottom: 40px;
+  }
+
+  section.block .eyebrow { color: var(--ink-soft); }
+
+  section.block h3 {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    margin: 0 0 16px;
+  }
+
+  .kv { margin-bottom: 14px; }
+  .kv .k, div.k {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+  }
+  div.k { margin-top: 20px; }
+  .kv .v, div.v { font-size: 15px; line-height: 1.6; }
+
+  ul.plain {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  ul.plain li {
+    padding: 12px 0;
+    border-top: 1px solid var(--line-soft);
+    line-height: 1.55;
+  }
+
+  ul.plain li:first-child { border-top: none; }
+
+  ul.plain li .term {
+    font-weight: 700;
+    margin-right: 6px;
+  }
+
+  .traits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .trait {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0;
+    border: 1px solid var(--line);
+    background: var(--bg-soft);
+    padding: 6px 12px;
+    border-radius: 999px;
+    color: var(--ink);
+  }
+
+  .swot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  @media (max-width: 560px) {
+    .swot-grid { grid-template-columns: 1fr; }
+  }
+
+  .swot-cell {
+    border: 1px solid var(--line-soft);
+    border-radius: var(--radius);
+    background: var(--bg-soft);
+    padding: 18px;
+  }
+
+  .swot-cell .swot-title {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--green-dark);
+    margin-bottom: 10px;
+  }
+
+  footer.credit {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line-soft);
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: 0;
+  }
+
+  .pdf-download-row {
+    display: none;
+    margin-top: 40px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .pdf-download-row.show { display: flex; }
+
+  .pdf-btn {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 700;
+    color: #FFFFFF;
+    background: var(--green);
+    border: none;
+    padding: 13px 26px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    transition: transform 0.1s ease, background 0.15s ease, opacity 0.15s ease;
+  }
+
+  .pdf-btn:hover:not(:disabled) { background: var(--green-dark); }
+  .pdf-btn:active:not(:disabled) { transform: translateY(1px); }
+  .pdf-btn:disabled { opacity: 0.55; cursor: default; }
+
+  .pdf-btn:focus-visible {
+    outline: 2px solid var(--green-dark);
+    outline-offset: 3px;
+  }
+
+  .pdf-hint {
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+
+  .copied-toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: #FFFFFF;
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+  }
+
+  .copied-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shield.loading path.outline { animation: none; stroke-dashoffset: 0; }
+    * { transition: none !important; }
+  }
+
+  /* ---------- Auth gate ---------- */
+
+  #auth-loading {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 96px 24px 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .auth-loading-spinner {
+    width: 26px;
+    height: 26px;
+    border: 3px solid var(--line);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: auth-spin 0.7s linear infinite;
+  }
+
+  @keyframes auth-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .auth-loading-spinner { animation: none; }
+  }
+
+  #auth-screen {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 96px 24px 120px;
+  }
+
+  .auth-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 40px 36px;
+  }
+
+  .auth-brandmark {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-bottom: 28px;
+    text-align: center;
+  }
+
+  .auth-tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 26px;
+  }
+
+  .auth-tab {
+    flex: 1;
+    text-align: center;
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: none;
+    border: none;
+    padding: 9px 0;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .auth-tab.active {
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 1px 2px rgba(26,26,26,0.08);
+  }
+
+  .auth-field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 18px; }
+
+  .auth-field label {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .auth-field input {
+    font-family: var(--font-body);
+    font-size: 15px;
+    color: var(--ink);
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  .auth-field input:focus {
+    border-color: var(--green);
+    background: var(--paper);
+    box-shadow: 0 0 0 3px rgba(0,128,96,0.12);
+  }
+
+  button#auth-submit {
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFFFFF;
+    background: var(--green);
+    border: none;
+    padding: 13px 26px;
+    border-radius: 999px;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  button#auth-submit:hover { background: var(--green-dark); }
+  button#auth-submit:active { transform: translateY(1px); }
+  button#auth-submit:disabled { opacity: 0.55; cursor: default; }
+
+  .auth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    font-family: var(--font-body);
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .auth-divider::before, .auth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+
+  button#auth-google {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-family: var(--font-body);
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 11px 22px;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+  button#auth-google:hover { background: var(--bg-soft); border-color: #C9CCD1; }
+  button#auth-google:disabled { opacity: 0.55; cursor: default; }
+
+  .auth-error {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: #B02A28;
+    border: 1px solid #F5C2C0;
+    border-left: 3px solid #B02A28;
+    border-radius: var(--radius);
+    padding: 12px 14px;
+    background: #FDF1F0;
+    display: none;
+    margin-bottom: 18px;
+  }
+  .auth-error.show { display: block; }
+
+  .signedin-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px 24px 0;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .signedin-bar button {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+  }
+  .signedin-bar button:hover { color: var(--ink); border-color: #C9CCD1; }
+
+  /* ---------- Save to profile ---------- */
+
+  .save-btn {
+    font-family: var(--font-body);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green-dark);
+    background: var(--paper);
+    border: 1px solid var(--green);
+    padding: 13px 24px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.15s ease, opacity 0.15s ease;
+  }
+  .save-btn.show { display: inline-flex; }
+  .save-btn:hover:not(:disabled) { background: var(--bg-soft); }
+  .save-btn:disabled { opacity: 0.6; cursor: default; }
+
+  /* ---------- Profile modal ---------- */
+
+  #profile-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,26,26,0.45);
+    z-index: 60;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 48px 20px;
+    overflow-y: auto;
+  }
+  #profile-modal-backdrop.show { display: flex; }
+
+  .profile-modal-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 32px 32px 8px;
+    max-width: 560px;
+    width: 100%;
+    position: relative;
+  }
+
+  .profile-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: none;
+    background: var(--bg-soft);
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .profile-modal-close:hover { background: var(--line-soft); color: var(--ink); }
+
+  .profile-modal-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0 0 6px;
+  }
+
+  .profile-modal-sub {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin: 0 0 24px;
+  }
+
+  .profile-section-title {
+    font-family: var(--font-body);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--green-dark);
+    margin: 0 0 12px;
+  }
+
+  .profile-section + .profile-section { margin-top: 28px; }
+
+  .profile-list { margin-bottom: 8px; }
+
+  .profile-empty {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    padding: 10px 0 22px;
+  }
+
+  .profile-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+    border-top: 1px solid var(--line-soft);
+  }
+  .profile-item:first-child { border-top: none; }
+
+  .profile-item-name {
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .profile-item-date {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  .profile-item-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .profile-action-btn {
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 13px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .profile-action-btn:hover { color: var(--ink); border-color: #C9CCD1; background: var(--bg-soft); }
+  .profile-action-btn:disabled { opacity: 0.55; cursor: default; }
+  .profile-action-delete:hover { color: #B02A28; border-color: #F5C2C0; background: #FDF1F0; }
+
+  @media print {
+    .signedin-bar, form#brief-form, .submit-row, .pdf-download-row, .credit { display: none !important; }
+    body { background: #fff; margin: 0; }
+    .wrap { padding: 20mm; max-width: none; }
+    #result { display: block !important; }
+    section.block { break-inside: avoid; margin-bottom: 24px; }
+    h2, h3 { page-break-after: avoid; }
+    .kv, .traits, ul.plain li, .swot-cell { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Shown briefly while Firebase checks whether a session already exists -->
+<div id="auth-loading">
+  <div class="auth-loading-spinner"></div>
+</div>
+
+<!-- Auth gate: shown once we know the user is signed out -->
+<div id="auth-screen" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-brandmark">Brane Scan</div>
+
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" id="tab-signin">Sign in</button>
+      <button type="button" class="auth-tab" id="tab-signup">Create account</button>
+    </div>
+
+    <div class="auth-error" id="auth-error"></div>
+
+    <form id="auth-form">
+      <div class="auth-field">
+        <label for="auth-email">Email</label>
+        <input type="email" id="auth-email" autocomplete="email" required />
+      </div>
+      <div class="auth-field">
+        <label for="auth-password">Password</label>
+        <input type="password" id="auth-password" autocomplete="current-password" minlength="6" required />
+      </div>
+      <button id="auth-submit" type="submit">Sign in</button>
+    </form>
+
+    <div class="auth-divider">or</div>
+    <button id="auth-google" type="button">Continue with Google</button>
+  </div>
+</div>
+
+<!-- Signed-in status bar + app, hidden until authenticated -->
+<div id="app-gate" style="display:none;">
+<div class="signedin-bar">
+  <span id="signedInEmail"></span>
+  <button type="button" id="open-profile">Profile</button>
+  <button type="button" id="auth-signout">Sign out</button>
+</div>
+
+<div class="wrap">
+
+<div class="card">
+  <header class="top">
+    <svg class="shield" id="shield" viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg">
+      <path class="fill" d="M20 2 L36 8 V21 C36 31 29 39 20 42 C11 39 4 31 4 21 V8 Z"/>
+      <path class="outline" d="M20 2 L36 8 V21 C36 31 29 39 20 42 C11 39 4 31 4 21 V8 Z"/>
+    </svg>
+    <div class="brandmark">Brane Scan<span>Environmental & competitive scanning</span></div>
+  </header>
+
+  <h1 class="hero">Describe the business. Get the full scan.</h1>
+  <p class="sub">Answer a few questions about the organization and its market and Brane Scan works out the PESTLE factors, competitive landscape, SWOT, and where to focus first — as one cohesive scan, not a template with blanks filled in.</p>
+
+  <form id="brief-form">
+    <div class="field">
+      <label for="orgName">Organization name</label>
+      <input type="text" id="orgName" placeholder="e.g. Northline Logistics" required />
+    </div>
+
+    <div class="field">
+      <label for="description">What it does</label>
+      <textarea id="description" rows="3" placeholder="A regional freight brokerage connecting small manufacturers with independent carriers." required></textarea>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="industry">Industry</label>
+        <input type="text" id="industry" placeholder="e.g. logistics, healthcare, SaaS" />
+      </div>
+      <div class="field">
+        <label for="market">Market / geography</label>
+        <input type="text" id="market" placeholder="e.g. Midwest US, B2B" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="competitors">Known competitors (optional)</label>
+      <input type="text" id="competitors" placeholder="e.g. FreightCo, Route Direct, ShipLine" />
+    </div>
+
+    <div class="field">
+      <label for="context">What's prompting this scan?</label>
+      <textarea id="context" rows="3" placeholder="e.g. Evaluating whether to expand into a new region; a new competitor just entered the market."></textarea>
+    </div>
+
+    <div class="submit-row">
+      <button id="build" type="submit">Run the scan</button>
+      <span class="status" id="status"></span>
+    </div>
+
+    <div class="error-box" id="error-box"></div>
+  </form>
+
+  <div id="result"></div>
+
+  <div class="pdf-download-row" id="printRow">
+    <button id="printBtn" class="pdf-btn" type="button" disabled>⬇ Download PDF</button>
+    <button id="saveScanBtn" class="save-btn" type="button">☆ Save to profile</button>
+    <span class="pdf-hint" id="pdfHint">Preparing your scan PDF…</span>
+  </div>
+</div>
+
+  <footer class="credit">Brane Scan — every brief becomes one signed, cohesive scan. · <a href="privacy-policy.html" style="color:inherit;text-decoration:underline;">Privacy Policy</a></footer>
+</div>
+
+<div class="copied-toast" id="toast">Copied</div>
+
+<div id="profile-modal-backdrop">
+  <div class="profile-modal-card">
+    <button type="button" class="profile-modal-close" id="profile-modal-close" aria-label="Close">✕</button>
+    <h2 class="profile-modal-title">Your profile</h2>
+    <p class="profile-modal-sub">Scans you've saved to your account.</p>
+
+    <div class="profile-section">
+      <div class="profile-section-title">Saved scans</div>
+      <div class="profile-list" id="profileScanList"><div class="profile-empty">Loading…</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#app-gate -->
+
+<script>
+// =====================================================================
+// Firebase Auth — gates the tool behind sign-in / sign-up. Same project
+// as the brand, OD, and HR tools, so accounts and sign-in state are
+// shared across all four.
+// =====================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyDnq6YRS5BEboIlUtf9Pbuct72Y1upzieg",
+  authDomain: "braneup-250cb.firebaseapp.com",
+  projectId: "braneup-250cb",
+  storageBucket: "braneup-250cb.firebasestorage.app",
+  messagingSenderId: "173132439683",
+  appId: "1:173132439683:web:49eee1e3cd9bc84d1bfbb6"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const authLoading = document.getElementById('auth-loading');
+const authScreen = document.getElementById('auth-screen');
+const appGate = document.getElementById('app-gate');
+const authForm = document.getElementById('auth-form');
+const authEmail = document.getElementById('auth-email');
+const authPassword = document.getElementById('auth-password');
+const authSubmit = document.getElementById('auth-submit');
+const authError = document.getElementById('auth-error');
+const authGoogleBtn = document.getElementById('auth-google');
+const tabSignin = document.getElementById('tab-signin');
+const tabSignup = document.getElementById('tab-signup');
+const signedInEmail = document.getElementById('signedInEmail');
+const authSignoutBtn = document.getElementById('auth-signout');
+
+let authMode = 'signin'; // 'signin' | 'signup'
+
+function setAuthMode(mode) {
+  authMode = mode;
+  tabSignin.classList.toggle('active', mode === 'signin');
+  tabSignup.classList.toggle('active', mode === 'signup');
+  authSubmit.textContent = mode === 'signin' ? 'Sign in' : 'Create account';
+  authPassword.autocomplete = mode === 'signin' ? 'current-password' : 'new-password';
+  authError.classList.remove('show');
+  authError.textContent = '';
+}
+
+tabSignin.addEventListener('click', () => setAuthMode('signin'));
+tabSignup.addEventListener('click', () => setAuthMode('signup'));
+
+function showAuthError(err) {
+  authError.textContent = (err && err.message) ? err.message : 'Something went wrong. Try again.';
+  authError.classList.add('show');
+}
+
+authForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  authError.classList.remove('show');
+  authSubmit.disabled = true;
+  try {
+    if (authMode === 'signin') {
+      await auth.signInWithEmailAndPassword(authEmail.value.trim(), authPassword.value);
+    } else {
+      await auth.createUserWithEmailAndPassword(authEmail.value.trim(), authPassword.value);
+    }
+  } catch (err) {
+    showAuthError(err);
+  } finally {
+    authSubmit.disabled = false;
+  }
+});
+
+authGoogleBtn.addEventListener('click', async () => {
+  authError.classList.remove('show');
+  authGoogleBtn.disabled = true;
+  try {
+    await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+  } catch (err) {
+    showAuthError(err);
+  } finally {
+    authGoogleBtn.disabled = false;
+  }
+});
+
+authSignoutBtn.addEventListener('click', () => auth.signOut());
+
+auth.onAuthStateChanged((user) => {
+  authLoading.style.display = 'none';
+  if (user) {
+    authScreen.style.display = 'none';
+    appGate.style.display = '';
+    signedInEmail.textContent = user.email || '';
+  } else {
+    authScreen.style.display = '';
+    appGate.style.display = 'none';
+  }
+});
+
+// =====================================================================
+
+const form = document.getElementById('brief-form');
+const buildBtn = document.getElementById('build');
+const statusEl = document.getElementById('status');
+const errorBox = document.getElementById('error-box');
+const resultEl = document.getElementById('result');
+const shield = document.getElementById('shield');
+const toast = document.getElementById('toast');
+const printRow = document.getElementById('printRow');
+const printBtn = document.getElementById('printBtn');
+const pdfHint = document.getElementById('pdfHint');
+const saveScanBtn = document.getElementById('saveScanBtn');
+const openProfileBtn = document.getElementById('open-profile');
+const profileModalBackdrop = document.getElementById('profile-modal-backdrop');
+const profileModalClose = document.getElementById('profile-modal-close');
+const profileScanList = document.getElementById('profileScanList');
+
+let currentScanData = null;
+
+// The Groq API key and system prompt live server-side in
+// /api/generate-scan.js. The browser only ever talks to our own
+// /api/generate-scan endpoint — it never sees the key.
+const API_ENDPOINT = '/api/generate-scan';
+
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1400);
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).then(() => showToast('Copied ' + text));
+}
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function el(tag, cls, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (html !== undefined) e.innerHTML = html;
+  return e;
+}
+
+function asList(v) {
+  if (Array.isArray(v)) return v.filter(Boolean);
+  if (v) return [v];
+  return [];
+}
+
+// =====================================================================
+// PDF export — branded multi-page PDF via pdf-common.js (same system
+// app.html/Brane uses: cover page, table of contents, one section per
+// page-group, closing page), instead of the browser print dialog.
+// =====================================================================
+
+let sectionHeadingBlock, kvBlock, subheadBlock, bulletListBlock,
+    generateDocumentPDF, triggerPdfDownload, pdfDiv;
+if (window.BranePDF) {
+  ({
+    sectionHeadingBlock, kvBlock, subheadBlock, bulletListBlock,
+    generateDocumentPDF, triggerPdfDownload, pdfDiv
+  } = window.BranePDF);
+} else {
+  console.error('pdf-common.js did not load — check that it is deployed alongside scan.html and the <script src="pdf-common.js"> path is correct. PDF export will be unavailable, but the scan itself will still run.');
+}
+
+function buildPestlePdfBlocks(report, accent) {
+  const pestle = report.pestle || {};
+  const fields = [
+    ['Political', pestle.political], ['Economic', pestle.economic], ['Social', pestle.social],
+    ['Technological', pestle.technological], ['Legal', pestle.legal], ['Environmental', pestle.environmental]
+  ];
+  const blocks = [sectionHeadingBlock('Environmental Scan', 'PESTLE Analysis', accent)];
+  fields.forEach(([k, v]) => {
+    const items = asList(v);
+    if (items.length) blocks.push(kvBlock(k, items.join('; ')));
+  });
+  return blocks;
+}
+
+function buildLandscapePdfBlocks(report, accent) {
+  const landscape = report.competitiveLandscape || {};
+  const competitors = Array.isArray(landscape.competitors) ? landscape.competitors : [];
+  const forces = landscape.forces || {};
+
+  const blocks = [
+    sectionHeadingBlock('Environmental Scan', 'Competitive Landscape', accent),
+    kvBlock('Overview', landscape.summary)
+  ];
+
+  if (competitors.length) {
+    blocks.push(subheadBlock('Direct competitors'));
+    competitors.forEach(c => {
+      const detail = [c.strengths && ('Strengths: ' + c.strengths), c.weaknesses && ('Weaknesses: ' + c.weaknesses)].filter(Boolean).join(' · ');
+      blocks.push(pdfDiv({ padding: '9px 0', borderTop: '1px solid #ECEDEF', fontSize: '12.5px', lineHeight: '1.6' },
+        `<strong>${escapeHtml(c.name || 'Unnamed competitor')}</strong> — ${escapeHtml(detail)}`));
+    });
+  }
+
+  const forceEntries = [
+    ['Threat of new entrants', forces.newEntrants],
+    ['Rivalry in the industry', forces.rivalry],
+    ['Bargaining power of suppliers', forces.supplierPower],
+    ['Bargaining power of customers', forces.customerPower],
+    ['Threat of substitutes', forces.substitutes]
+  ].filter(([, v]) => v);
+  if (forceEntries.length) {
+    blocks.push(subheadBlock("Porter's five forces"));
+    forceEntries.forEach(([k, v]) => blocks.push(kvBlock(k, v)));
+  }
+
+  return blocks;
+}
+
+function buildSwotPdfBlocks(report, accent) {
+  const swot = report.swot || {};
+  const blocks = [sectionHeadingBlock('Environmental Scan', 'SWOT', accent)];
+  [['Strengths', swot.strengths], ['Weaknesses', swot.weaknesses], ['Opportunities', swot.opportunities], ['Threats', swot.threats]]
+    .forEach(([k, v]) => {
+      const items = asList(v);
+      if (!items.length) return;
+      blocks.push(subheadBlock(k));
+      blocks.push(bulletListBlock(items));
+    });
+  return blocks;
+}
+
+function buildEmergingPositioningPdfBlocks(report, accent) {
+  const emerging = report.emergingRisksOpportunities || {};
+  const positioning = report.marketPositioning || {};
+  const dims = Array.isArray(positioning.dimensions) ? positioning.dimensions : [];
+
+  const blocks = [sectionHeadingBlock('Environmental Scan', 'Emerging Factors & Positioning', accent)];
+  const opps = asList(emerging.opportunities);
+  const risks = asList(emerging.risks);
+  if (opps.length) { blocks.push(subheadBlock('Emerging opportunities')); blocks.push(bulletListBlock(opps)); }
+  if (risks.length) { blocks.push(subheadBlock('Emerging risks')); blocks.push(bulletListBlock(risks)); }
+  if (positioning.summary) blocks.push(kvBlock('Market positioning summary', positioning.summary));
+  if (dims.length) {
+    blocks.push(subheadBlock('Positioning dimensions'));
+    dims.forEach(d => {
+      if (!d || !d.name) return;
+      blocks.push(pdfDiv({ padding: '9px 0', borderTop: '1px solid #ECEDEF', fontSize: '12.5px', lineHeight: '1.6' },
+        `<strong>${escapeHtml(d.name)}</strong> — ${escapeHtml(d.position || '')}`));
+    });
+  }
+  return blocks;
+}
+
+function buildRecommendationsPdfBlocks(report, accent) {
+  const rec = report.recommendations || {};
+  return [
+    sectionHeadingBlock('Environmental Scan', 'Recommendations', accent),
+    subheadBlock('Quick wins'),
+    bulletListBlock(rec.quickWins),
+    subheadBlock('Next 90 days'),
+    bulletListBlock(rec.priorities),
+    subheadBlock('Risks to watch'),
+    bulletListBlock(rec.risks)
+  ];
+}
+
+let scanPdfBlobUrl = null;
+let scanPdfFileName = 'Environmental-Scan.pdf';
+
+async function generateScanPDF(report) {
+  const meta = report.metadata || {};
+  const accent = '#008060';
+
+  const { blobUrl, fileName } = await generateDocumentPDF({
+    title: report.organizationName || 'Untitled Scan',
+    eyebrow: [meta.industry, meta.market].filter(Boolean).join(' · ') || 'Environmental scan',
+    tagline: (report.competitiveLandscape && report.competitiveLandscape.summary) || '',
+    toolLabel: 'Environmental Scan',
+    accent,
+    sectionDefs: [
+      { title: 'PESTLE Analysis', blocks: buildPestlePdfBlocks(report, accent) },
+      { title: 'Competitive Landscape', blocks: buildLandscapePdfBlocks(report, accent) },
+      { title: 'SWOT', blocks: buildSwotPdfBlocks(report, accent) },
+      { title: 'Emerging Factors & Positioning', blocks: buildEmergingPositioningPdfBlocks(report, accent) },
+      { title: 'Recommendations', blocks: buildRecommendationsPdfBlocks(report, accent) }
+    ]
+  });
+
+  scanPdfBlobUrl = blobUrl;
+  scanPdfFileName = fileName;
+}
+
+printBtn.addEventListener('click', () => triggerPdfDownload(scanPdfBlobUrl, scanPdfFileName));
+
+// =====================================================================
+// Profile — save / list / delete scans.
+// Saved server-side in Firestore under the signed-in user's account,
+// never in browser storage, so it follows the user across devices.
+// =====================================================================
+
+function scansCollection() {
+  return db.collection('users').doc(auth.currentUser.uid).collection('scans');
+}
+
+saveScanBtn.addEventListener('click', async () => {
+  if (!currentScanData || !auth.currentUser) return;
+  saveScanBtn.disabled = true;
+  saveScanBtn.textContent = 'Saving…';
+  try {
+    await scansCollection().add({
+      name: currentScanData.organizationName || 'Untitled Scan',
+      data: currentScanData,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    saveScanBtn.textContent = '✓ Saved to profile';
+    showToast('Saved to profile');
+  } catch (err) {
+    console.error('Save failed:', err);
+    saveScanBtn.textContent = '☆ Save to profile';
+    saveScanBtn.disabled = false;
+    showToast('Could not save — try again');
+    return;
+  }
+  setTimeout(() => {
+    saveScanBtn.textContent = '☆ Save to profile';
+    saveScanBtn.disabled = false;
+  }, 1800);
+});
+
+function renderProfileList(container, snap) {
+  container.innerHTML = '';
+  if (snap.empty) {
+    container.appendChild(el('div', 'profile-empty', 'No saved scans yet.'));
+    return;
+  }
+  snap.forEach(doc => {
+    const d = doc.data();
+    const item = el('div', 'profile-item');
+
+    const info = el('div');
+    info.appendChild(el('div', 'profile-item-name', d.name || 'Untitled'));
+    const dateStr = (d.createdAt && d.createdAt.toDate) ? d.createdAt.toDate().toLocaleDateString() : '';
+    info.appendChild(el('div', 'profile-item-date', dateStr));
+    item.appendChild(info);
+
+    const actions = el('div', 'profile-item-actions');
+
+    const viewBtn = document.createElement('button');
+    viewBtn.type = 'button';
+    viewBtn.className = 'profile-action-btn';
+    viewBtn.textContent = 'View';
+    viewBtn.onclick = () => {
+      currentScanData = d.data;
+      renderScan(d.data);
+      statusEl.textContent = 'Done';
+      shield.classList.remove('loading');
+      shield.classList.add('sealed');
+      printRow.classList.add('show');
+      saveScanBtn.classList.add('show');
+
+      printBtn.disabled = true;
+      printBtn.textContent = 'Preparing PDF…';
+      pdfHint.textContent = 'Preparing your scan PDF…';
+      generateScanPDF(d.data).then(() => {
+        printBtn.disabled = false;
+        printBtn.textContent = '⬇ Download PDF';
+        pdfHint.textContent = scanPdfFileName;
+      }).catch(pdfErr => {
+        console.error('PDF generation failed:', pdfErr);
+        printBtn.textContent = 'PDF unavailable';
+        pdfHint.textContent = 'Could not generate the PDF this time — try rebuilding the scan.';
+      });
+
+      closeProfile();
+      resultEl.scrollIntoView({ behavior: 'smooth' });
+    };
+    actions.appendChild(viewBtn);
+
+    const delBtn = document.createElement('button');
+    delBtn.type = 'button';
+    delBtn.className = 'profile-action-btn profile-action-delete';
+    delBtn.textContent = 'Delete';
+    delBtn.onclick = async () => {
+      if (!confirm('Delete this saved scan? This cannot be undone.')) return;
+      delBtn.disabled = true;
+      try {
+        await scansCollection().doc(doc.id).delete();
+        item.remove();
+        if (!container.querySelector('.profile-item')) {
+          container.appendChild(el('div', 'profile-empty', 'No saved scans yet.'));
+        }
+      } catch (err) {
+        console.error('Delete failed:', err);
+        delBtn.disabled = false;
+        showToast('Could not delete — try again');
+      }
+    };
+    actions.appendChild(delBtn);
+
+    item.appendChild(actions);
+    container.appendChild(item);
+  });
+}
+
+async function loadProfileLists() {
+  profileScanList.innerHTML = '<div class="profile-empty">Loading…</div>';
+  try {
+    const scansSnap = await scansCollection().orderBy('createdAt', 'desc').get();
+    renderProfileList(profileScanList, scansSnap);
+  } catch (err) {
+    console.error('Could not load profile:', err);
+    profileScanList.innerHTML = '<div class="profile-empty">Could not load your saved scans.</div>';
+  }
+}
+
+function openProfile() {
+  profileModalBackdrop.classList.add('show');
+  loadProfileLists();
+}
+function closeProfile() {
+  profileModalBackdrop.classList.remove('show');
+}
+
+openProfileBtn.addEventListener('click', openProfile);
+profileModalClose.addEventListener('click', closeProfile);
+profileModalBackdrop.addEventListener('click', (e) => {
+  if (e.target === profileModalBackdrop) closeProfile();
+});
+
+// =====================================================================
+
+function addKV(container, k, v) {
+  const items = asList(v);
+  if (!items.length) return;
+  const kv = el('div', 'kv');
+  kv.appendChild(el('div', 'k', escapeHtml(k)));
+  kv.appendChild(el('div', 'v', escapeHtml(items.join('; '))));
+  container.appendChild(kv);
+}
+
+function renderScan(report) {
+  resultEl.innerHTML = '';
+
+  const meta = report.metadata || {};
+  const header = el('div', 'doc-header');
+  header.appendChild(el('div', 'eyebrow', [meta.industry, meta.market].filter(Boolean).join(' · ') || 'Environmental scan'));
+  header.appendChild(el('h2', null, report.organizationName || 'Untitled Scan'));
+  resultEl.appendChild(header);
+
+  // PESTLE
+  const pestle = report.pestle || {};
+  const pestleSec = el('section', 'block');
+  pestleSec.appendChild(el('div', 'eyebrow', 'PESTLE analysis'));
+  pestleSec.appendChild(el('h3', null, 'Macro-environmental factors'));
+  addKV(pestleSec, 'Political', pestle.political);
+  addKV(pestleSec, 'Economic', pestle.economic);
+  addKV(pestleSec, 'Social', pestle.social);
+  addKV(pestleSec, 'Technological', pestle.technological);
+  addKV(pestleSec, 'Legal', pestle.legal);
+  addKV(pestleSec, 'Environmental', pestle.environmental);
+  resultEl.appendChild(pestleSec);
+
+  // Competitive landscape
+  const landscape = report.competitiveLandscape || {};
+  const competitors = Array.isArray(landscape.competitors) ? landscape.competitors : [];
+  const forces = landscape.forces || {};
+  if (landscape.summary || competitors.length || Object.values(forces).some(Boolean)) {
+    const landSec = el('section', 'block');
+    landSec.appendChild(el('div', 'eyebrow', 'Competitive landscape'));
+    landSec.appendChild(el('h3', null, 'Who else is in this market'));
+    if (landscape.summary) landSec.appendChild(el('p', null, escapeHtml(landscape.summary)));
+
+    if (competitors.length) {
+      landSec.appendChild(el('div', 'k', 'Direct competitors'));
+      const ul = el('ul', 'plain');
+      competitors.forEach(c => {
+        const detail = [c.strengths && ('Strengths: ' + c.strengths), c.weaknesses && ('Weaknesses: ' + c.weaknesses)].filter(Boolean).join(' · ');
+        ul.appendChild(el('li', null, `<span class="term">${escapeHtml(c.name || 'Unnamed competitor')}</span>${escapeHtml(detail)}`));
+      });
+      landSec.appendChild(ul);
+    }
+
+    const forceEntries = [
+      ['Threat of new entrants', forces.newEntrants],
+      ['Rivalry in the industry', forces.rivalry],
+      ['Bargaining power of suppliers', forces.supplierPower],
+      ['Bargaining power of customers', forces.customerPower],
+      ['Threat of substitutes', forces.substitutes]
+    ].filter(([, v]) => v);
+    if (forceEntries.length) {
+      landSec.appendChild(el('div', 'k', "Porter's five forces"));
+      const ul2 = el('ul', 'plain');
+      forceEntries.forEach(([k, v]) => ul2.appendChild(el('li', null, `<span class="term">${escapeHtml(k)}</span>${escapeHtml(v)}`)));
+      landSec.appendChild(ul2);
+    }
+    resultEl.appendChild(landSec);
+  }
+
+  // SWOT
+  const swot = report.swot || {};
+  if (asList(swot.strengths).length || asList(swot.weaknesses).length || asList(swot.opportunities).length || asList(swot.threats).length) {
+    const swotSec = el('section', 'block');
+    swotSec.appendChild(el('div', 'eyebrow', 'SWOT'));
+    swotSec.appendChild(el('h3', null, 'Strengths, weaknesses, opportunities, threats'));
+    const grid = el('div', 'swot-grid');
+    [['Strengths', swot.strengths], ['Weaknesses', swot.weaknesses], ['Opportunities', swot.opportunities], ['Threats', swot.threats]].forEach(([k, v]) => {
+      const items = asList(v);
+      if (!items.length) return;
+      const cell = el('div', 'swot-cell');
+      cell.appendChild(el('div', 'swot-title', k));
+      const ul = el('ul', 'plain');
+      items.forEach(item => ul.appendChild(el('li', null, escapeHtml(item))));
+      cell.appendChild(ul);
+      grid.appendChild(cell);
+    });
+    swotSec.appendChild(grid);
+    resultEl.appendChild(swotSec);
+  }
+
+  // Emerging factors & positioning
+  const emerging = report.emergingRisksOpportunities || {};
+  const positioning = report.marketPositioning || {};
+  const dims = Array.isArray(positioning.dimensions) ? positioning.dimensions : [];
+  const opps = asList(emerging.opportunities);
+  const risks = asList(emerging.risks);
+  if (opps.length || risks.length || positioning.summary || dims.length) {
+    const emSec = el('section', 'block');
+    emSec.appendChild(el('div', 'eyebrow', 'Emerging factors & positioning'));
+    emSec.appendChild(el('h3', null, 'What\'s changing, and where this sits in the market'));
+
+    if (opps.length) {
+      emSec.appendChild(el('div', 'k', 'Emerging opportunities'));
+      const ul = el('ul', 'plain');
+      opps.forEach(item => ul.appendChild(el('li', null, escapeHtml(item))));
+      emSec.appendChild(ul);
+    }
+    if (risks.length) {
+      emSec.appendChild(el('div', 'k', 'Emerging risks'));
+      const ul2 = el('ul', 'plain');
+      risks.forEach(item => ul2.appendChild(el('li', null, escapeHtml(item))));
+      emSec.appendChild(ul2);
+    }
+    if (positioning.summary) {
+      emSec.appendChild(el('div', 'k', 'Market positioning summary'));
+      emSec.appendChild(el('div', 'v', escapeHtml(positioning.summary)));
+    }
+    if (dims.length) {
+      emSec.appendChild(el('div', 'k', 'Positioning dimensions'));
+      const ul3 = el('ul', 'plain');
+      dims.forEach(d => {
+        if (!d || !d.name) return;
+        ul3.appendChild(el('li', null, `<span class="term">${escapeHtml(d.name)}</span>${escapeHtml(d.position || '')}`));
+      });
+      emSec.appendChild(ul3);
+    }
+    resultEl.appendChild(emSec);
+  }
+
+  // Recommendations
+  const rec = report.recommendations || {};
+  if ((rec.priorities || []).length || (rec.quickWins || []).length || (rec.risks || []).length) {
+    const recSec = el('section', 'block');
+    recSec.appendChild(el('div', 'eyebrow', 'Recommendations'));
+    recSec.appendChild(el('h3', null, 'Where to focus first'));
+
+    if (Array.isArray(rec.quickWins) && rec.quickWins.length) {
+      recSec.appendChild(el('div', 'k', 'Quick wins'));
+      const ul4 = el('ul', 'plain');
+      rec.quickWins.forEach(item => ul4.appendChild(el('li', null, escapeHtml(item))));
+      recSec.appendChild(ul4);
+    }
+    if (Array.isArray(rec.priorities) && rec.priorities.length) {
+      recSec.appendChild(el('div', 'k', 'Next 90 days'));
+      const ul5 = el('ul', 'plain');
+      rec.priorities.forEach(item => ul5.appendChild(el('li', null, escapeHtml(item))));
+      recSec.appendChild(ul5);
+    }
+    if (Array.isArray(rec.risks) && rec.risks.length) {
+      recSec.appendChild(el('div', 'k', 'Risks to watch'));
+      const ul6 = el('ul', 'plain');
+      rec.risks.forEach(item => ul6.appendChild(el('li', null, escapeHtml(item))));
+      recSec.appendChild(ul6);
+    }
+    resultEl.appendChild(recSec);
+  }
+
+  resultEl.classList.add('show');
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorBox.classList.remove('show');
+  errorBox.textContent = '';
+  printRow.classList.remove('show');
+  saveScanBtn.classList.remove('show');
+  saveScanBtn.textContent = '☆ Save to profile';
+  saveScanBtn.disabled = false;
+  currentScanData = null;
+
+  const payload = {
+    organizationName: document.getElementById('orgName').value.trim(),
+    description: document.getElementById('description').value.trim(),
+    industry: document.getElementById('industry').value.trim(),
+    market: document.getElementById('market').value.trim(),
+    competitors: document.getElementById('competitors').value.trim(),
+    context: document.getElementById('context').value.trim()
+  };
+
+  buildBtn.disabled = true;
+  statusEl.textContent = 'Running the scan…';
+  shield.classList.add('loading');
+  shield.classList.remove('sealed');
+
+  try {
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('Please sign in first.');
+    }
+    const idToken = await currentUser.getIdToken();
+
+    const apiRes = await fetch(API_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + idToken
+      },
+      body: JSON.stringify(payload)
+    });
+
+    let data;
+    try {
+      data = await apiRes.json();
+    } catch (parseErr) {
+      throw new Error('The server returned something unreadable. Try again.');
+    }
+
+    if (!apiRes.ok) {
+      console.error('API error:', apiRes.status, data);
+      throw new Error(data?.error || ('Request failed (status ' + apiRes.status + '). Try again.'));
+    }
+
+    renderScan(data);
+    currentScanData = data;
+    statusEl.textContent = 'Done';
+    shield.classList.remove('loading');
+    shield.classList.add('sealed');
+    printRow.classList.add('show');
+    saveScanBtn.classList.add('show');
+
+    printBtn.disabled = true;
+    printBtn.textContent = 'Preparing PDF…';
+    pdfHint.textContent = 'Preparing your scan PDF…';
+    generateScanPDF(data).then(() => {
+      printBtn.disabled = false;
+      printBtn.textContent = '⬇ Download PDF';
+      pdfHint.textContent = scanPdfFileName;
+    }).catch(pdfErr => {
+      console.error('PDF generation failed:', pdfErr);
+      printBtn.textContent = 'PDF unavailable';
+      pdfHint.textContent = 'Could not generate the PDF this time — try rebuilding the scan.';
+    });
+  } catch (err) {
+    errorBox.textContent = err.message;
+    errorBox.classList.add('show');
+    statusEl.textContent = '';
+    shield.classList.remove('loading');
+  } finally {
+    buildBtn.disabled = false;
+  }
+});
+</script>
+
+</body>
+</html>
