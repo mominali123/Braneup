@@ -44,7 +44,7 @@ if (!admin.apps.length) {
 }
 
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL = 'llama-3.3-70b-versatile';
+const MODEL = 'llama3-70b-8192';
 
 const SYSTEM_PROMPT = `You are Brane HR, an elite HR consultant who writes precise, professional job descriptions for companies. Your goal is to transform a short brief about a role into a comprehensive, well-structured job description document.
 You do not write generic filler or platitudes. Every section must be highly tailored, practical, and immediately usable by an HR department to post the role and evaluate candidates against it.
