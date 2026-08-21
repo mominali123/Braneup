@@ -39,7 +39,7 @@ if (!admin.apps.length) {
 }
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'nvidia/nemotron-3.5-lightning:free';
+const MODEL = 'openai/gpt-4o-mini';
 
 const SYSTEM_PROMPT = `You are Brane, an elite, enterprise-grade brand strategist and visual identity designer. Your goal is to transform a simple business brief into a comprehensive, cohesive, and deeply structured brand identity system.
 You do not write generic filler or platitudes. Every piece of strategy must be highly tailored, practical, and immediately actionable for a business looking to launch.
