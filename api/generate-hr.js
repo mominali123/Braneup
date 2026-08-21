@@ -1,5 +1,5 @@
 // Vercel serverless function: POST /api/generate-hr
-// Uses OpenRouter API with nvidia/nemotron-3.5-lightning:free model.
+// Uses OpenRouter API with google/gemma-4-26b-a4b-it:free model.
 // Set OPENROUTER_API_KEY and FIREBASE_SERVICE_ACCOUNT_KEY in Vercel env vars.
 
 const admin = require('firebase-admin');
