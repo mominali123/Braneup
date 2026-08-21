@@ -1,5 +1,5 @@
 // Vercel serverless function: POST /api/generate-od
-// Uses OpenRouter API with nvidia/nemotron-3.5-lightning:free model.
+// Uses OpenRouter API with openai/gpt-4o-mini model.
 // Set OPENROUTER_API_KEY and FIREBASE_SERVICE_ACCOUNT_KEY in Vercel env vars.
 
 const admin = require('firebase-admin');
@@ -33,7 +33,7 @@ if (!admin.apps.length) {
 }
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'nvidia/nemotron-3.5-lightning:free';
+const MODEL = 'openai/gpt-4o-mini';
 
 const SYSTEM_PROMPT = `You are Brane OD, an elite organizational development (OD) consultant and organizational designer. Your goal is to transform a short brief about a business into a comprehensive, deeply structured organizational development diagnostic covering organizational design (contextual and structural dimensions) and organizational culture, grounded in classic OD/organizational-theory frameworks (Daft's contextual & structural dimensions, Robbins' culture dimensions, Cameron & Quinn's competing values framework).
 You do not write generic filler or platitudes. Every recommendation must be highly tailored, practical, and immediately actionable for the specific organization described in the brief.
