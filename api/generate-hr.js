@@ -1,5 +1,5 @@
 // Vercel serverless function: POST /api/generate-hr
-// Uses OpenRouter API with google/gemma-4-26b-a4b-it:free model.
+// Uses OpenRouter API with meta-llama/llama-3.3-70b-instruct model.
 // Set OPENROUTER_API_KEY and FIREBASE_SERVICE_ACCOUNT_KEY in Vercel env vars.
 
 const admin = require('firebase-admin');
@@ -33,7 +33,7 @@ if (!admin.apps.length) {
 }
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'google/gemma-4-26b-a4b-it:free';
+const MODEL = 'meta-llama/llama-3.3-70b-instruct';
 
 const SYSTEM_PROMPT = `You are Brane HR, an elite HR consultant who writes precise, professional job descriptions for companies. Your goal is to transform a short brief about a role into a comprehensive, well-structured job description document.
 You do not write generic filler or platitudes. Every section must be highly tailored, practical, and immediately usable by an HR department to post the role and evaluate candidates against it.
