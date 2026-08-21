@@ -1,5 +1,5 @@
 // Vercel serverless function: POST /api/generate-scan
-// Uses OpenRouter API with nvidia/nemotron-3.5-lightning:free model.
+// Uses OpenRouter API with openai/gpt-4o-mini model.
 // Set OPENROUTER_API_KEY and FIREBASE_SERVICE_ACCOUNT_KEY in Vercel env vars.
 
 const admin = require('firebase-admin');
@@ -33,7 +33,7 @@ if (!admin.apps.length) {
 }
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const MODEL = 'nvidia/nemotron-3.5-lightning:free';
+const MODEL = 'openai/gpt-4o-mini';
 
 const SYSTEM_PROMPT = `You are Brane Scan, an elite market and competitive intelligence analyst who runs structured environmental scans for businesses. Your goal is to transform a short brief about a business into a comprehensive, well-structured environmental scan document.
 You do not write generic filler or platitudes. Every section must be highly tailored, practical, and immediately usable by a founder or strategy team to understand exactly where the business is exposed and where it's ahead. Ground every claim in the specific brief given — industry, market/geography, named competitors, and stage — rather than producing a generic template with blanks filled in.
