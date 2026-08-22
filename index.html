@@ -78,7 +78,8 @@
 
   #splash .shield { width: 56px; height: 56px; }
   #splash .shield path.outline { fill: none; stroke: rgba(255,255,255,0.9); stroke-width: 2; stroke-dasharray: 120; stroke-dashoffset: 120; animation: draw 1.5s var(--ease) forwards; }
-  #splash .shield path.fill { fill: var(--green-light); opacity: 0; animation: fillin 0.5s ease 1.3s forwards; }
+  #splash .shield path.fill-left { fill: var(--green-light); opacity: 0; animation: fillin 0.5s ease 1.3s forwards; }
+  #splash .shield path.fill-right { fill: #B8BCC2; opacity: 0; animation: fillin 0.5s ease 1.3s forwards; }
 
   @keyframes draw { to { stroke-dashoffset: 0; } }
   @keyframes fillin { to { opacity: 1; } }
@@ -121,7 +122,8 @@
   .brandmark { display: flex; align-items: center; gap: 10px; }
   .brandmark .shield-sm { width: 24px; height: 24px; flex-shrink: 0; }
   .brandmark .shield-sm path.outline { fill: none; stroke: var(--green-dark); stroke-width: 2.4; }
-  .brandmark .shield-sm path.fill { fill: var(--green); }
+  .brandmark .shield-sm path.fill-left { fill: var(--green); }
+  .brandmark .shield-sm path.fill-right { fill: #B8BCC2; }
   .brandmark span.wordmark { font-family: var(--font-display); font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
 
   nav.links { display: flex; align-items: center; gap: 28px; flex-shrink: 0; }
@@ -1120,8 +1122,9 @@
 
   <div id="splash" aria-hidden="true">
     <svg class="shield" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <path class="fill" d="M24 4 L42 11 V23 C42 34 34 42 24 45 C14 42 6 34 6 23 V11 Z"/>
-      <path class="outline" d="M24 4 L42 11 V23 C42 34 34 42 24 45 C14 42 6 34 6 23 V11 Z"/>
+      <path class="fill-left" d="M24 4 L6 11 V32 L24 45 Z"/>
+      <path class="fill-right" d="M24 4 L42 11 V32 L24 45 Z"/>
+      <path class="outline" d="M24 4 L42 11 V32 L24 45 L6 32 V11 Z"/>
     </svg>
     <div class="name">Brane</div>
     <div class="line">One brief. Four professional systems.</div>
@@ -1130,8 +1133,9 @@
   <header class="nav">
     <div class="brandmark">
       <svg class="shield-sm" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path class="fill" d="M24 4 L42 11 V23 C42 34 34 42 24 45 C14 42 6 34 6 23 V11 Z"/>
-        <path class="outline" d="M24 4 L42 11 V23 C42 34 34 42 24 45 C14 42 6 34 6 23 V11 Z"/>
+        <path class="fill-left" d="M24 4 L6 11 V32 L24 45 Z"/>
+        <path class="fill-right" d="M24 4 L42 11 V32 L24 45 Z"/>
+        <path class="outline" d="M24 4 L42 11 V32 L24 45 L6 32 V11 Z"/>
       </svg>
       <span class="wordmark">Brane</span>
     </div>
@@ -1666,7 +1670,8 @@
   <footer class="site">
     <div class="fmark">
       <svg width="16" height="16" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <path fill="#008060" d="M24 4 L42 11 V23 C42 34 34 42 24 45 C14 42 6 34 6 23 V11 Z"/>
+        <path fill="#008060" d="M24 4 L6 11 V32 L24 45 Z"/>
+        <path fill="#B8BCC2" d="M24 4 L42 11 V32 L24 45 Z"/>
       </svg>
       Brane — Business, done the professional way.
     </div>
