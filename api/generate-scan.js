@@ -1,36 +1,11 @@
 // Vercel serverless function: POST /api/generate-scan
 // Uses OpenRouter API with openai/gpt-4o-mini model.
-// Set OPENROUTER_API_KEY and FIREBASE_SERVICE_ACCOUNT_KEY in Vercel env vars.
+// Set OPENROUTER_API_KEY in Vercel env vars.
+//
+// Access control (auth + Pro-only gate) is centralized in
+// api/_lib/checkAccess.js — see that file for the Firestore schema.
 
-const admin = require('firebase-admin');
-
-function loadServiceAccount() {
-  const raw = (process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '').trim();
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw);
-  } catch (_) {
-    try {
-      return JSON.parse(Buffer.from(raw, 'base64').toString('utf8'));
-    } catch (err) {
-      console.error('FIREBASE_SERVICE_ACCOUNT_KEY is set but is not valid JSON or base64-encoded JSON.');
-      return null;
-    }
-  }
-}
-
-if (!admin.apps.length) {
-  const serviceAccount = loadServiceAccount();
-  if (serviceAccount) {
-    try {
-      admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
-    } catch (err) {
-      console.error('Failed to initialize Firebase Admin:', err);
-    }
-  } else {
-    console.error('Firebase Admin not initialized — check FIREBASE_SERVICE_ACCOUNT_KEY in Vercel.');
-  }
-}
+const { checkAccess } = require('./_lib/checkAccess');
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MODEL = 'openai/gpt-4o-mini';
@@ -100,16 +75,9 @@ module.exports = async (req, res) => {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const authHeader = req.headers.authorization || '';
-  const match = authHeader.match(/^Bearer (.+)$/);
-  if (!match) {
-    return res.status(401).json({ error: 'Sign in required.' });
-  }
-  try {
-    await admin.auth().verifyIdToken(match[1]);
-  } catch (err) {
-    console.error('ID token verification failed:', err);
-    return res.status(401).json({ error: 'Your session expired — please sign in again.' });
+  const access = await checkAccess(req, 'scan');
+  if (!access.ok) {
+    return res.status(access.status).json({ error: access.error });
   }
 
   const apiKey = process.env.OPENROUTER_API_KEY;
