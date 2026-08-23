@@ -2,8 +2,7 @@
 //
 // Single shared gate for every /api/generate-* endpoint. Verifies the
 // Firebase ID token AND enforces plan/quota rules, so no endpoint can
-// accidentally skip the plan check the way generate-hr.js and
-// generate-scan.js currently do (auth-only, no tier check).
+// accidentally skip the plan check.
 //
 // Usage inside a handler:
 //
@@ -13,20 +12,36 @@
 //     return res.status(access.status).json({ error: access.error });
 //   }
 //   const uid = access.uid;
-//   ... proceed to call Groq ...
+//   ... proceed to call OpenRouter ...
 //   if (access.recordUsage) await access.recordUsage(); // brand tool only, after a successful generation
 //
-// Firestore schema this relies on, under users/{uid}:
-//   plan: 'free' | 'pro'                  (informational; proStatus is the source of truth)
-//   proStatus: 'active' | 'cancelled' | 'past_due' | undefined
-//   brandGenerationsUsed: number
-//   brandGenerationsPeriodStart: Firestore Timestamp
+// ---------------------------------------------------------------------
+// PRO STATUS — SOURCE OF TRUTH
+// ---------------------------------------------------------------------
+// api/paypal-webhook.js is the only writer of users/{uid}.subscription.
+// This file only *reads* it. Schema, as written by the webhook:
 //
-// Free-tier reset policy: fixed calendar month (resets whenever the
-// current month differs from brandGenerationsPeriodStart's month) —
-// simplest to reason about and to display ("resets on the 1st").
-// Swap to rolling-30-day here if you'd rather do that; it's the one
-// open decision from the project notes.
+//   subscription: {
+//     provider: 'paypal',
+//     paypalSubscriptionId: string,
+//     paypalEmail: string,
+//     status: 'APPROVAL_PENDING' | 'APPROVED' | 'ACTIVE' | 'SUSPENDED'
+//           | 'CANCELLED' | 'EXPIRED' | 'REFUNDED' | 'REVERSED',
+//     cancelAtPeriodEnd: boolean,
+//     currentPeriodEnd: Firestore Timestamp | null,
+//     updatedAt: Firestore Timestamp
+//   }
+//
+// A user counts as Pro if status is ACTIVE, OR the subscription was
+// cancelled but the period they already paid for hasn't ended yet
+// (refund-policy.html §5: cancelling stops the *next* renewal — access
+// continues through the period already paid for). SUSPENDED, EXPIRED,
+// REFUNDED, and REVERSED never grant access.
+//
+// Back-compat: if a user doc has no `subscription` object at all (e.g.
+// a manually comped account), a manually-set `proStatus: 'active'` is
+// still honored.
+// ---------------------------------------------------------------------
 
 const admin = require('firebase-admin');
 
@@ -64,6 +79,19 @@ function isSameMonth(tsA, tsB) {
   return tsA.getUTCFullYear() === tsB.getUTCFullYear() && tsA.getUTCMonth() === tsB.getUTCMonth();
 }
 
+function isProActive(userData) {
+  const sub = userData && userData.subscription;
+  if (!sub) {
+    return !!(userData && userData.proStatus === 'active');
+  }
+  if (sub.status === 'ACTIVE') return true;
+  if (sub.cancelAtPeriodEnd && sub.currentPeriodEnd) {
+    const periodEnd = sub.currentPeriodEnd.toDate ? sub.currentPeriodEnd.toDate() : new Date(sub.currentPeriodEnd);
+    return periodEnd > new Date();
+  }
+  return false;
+}
+
 /**
  * Verifies the caller's Firebase ID token and enforces plan/quota rules
  * for the given tool.
@@ -99,7 +127,7 @@ async function checkAccess(req, tool) {
   }
 
   const userData = userSnap.exists ? userSnap.data() : {};
-  const isPro = userData.proStatus === 'active';
+  const isPro = isProActive(userData);
 
   // OD / HR / Scan are Pro-only, full stop.
   if (tool === 'od' || tool === 'hr' || tool === 'scan') {
@@ -134,8 +162,8 @@ async function checkAccess(req, tool) {
       };
     }
 
-    // Caller should invoke this only after a successful Groq generation,
-    // so a failed call doesn't burn the user's quota.
+    // Caller should invoke this only after a successful generation, so
+    // a failed call doesn't burn the user's quota.
     const recordUsage = async () => {
       try {
         await userRef.set(
@@ -149,7 +177,6 @@ async function checkAccess(req, tool) {
           { merge: true }
         );
       } catch (err) {
-        // Don't fail the request over a bookkeeping write — just log it.
         console.error('Failed to record brand generation usage:', err);
       }
     };
