@@ -166,7 +166,8 @@ function subscriptionIdFromSaleResource(resource) {
 // deliberately do NOT trust PayPal's live subscription status (it may
 // still say ACTIVE even after a specific charge was refunded).
 async function markRevoked(subscriptionId, status, eventType) {
-  const sub = await getSubscriptionDetails(subscriptionId).catch(() => null);
+  // Removed .catch(() => null) so network/fetch failures bubble up to main try/catch
+  const sub = await getSubscriptionDetails(subscriptionId);
   const email = sub && sub.subscriber && sub.subscriber.email_address;
   const uid = await findUidByEmail(email);
   if (!uid) {
