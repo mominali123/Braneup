@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your Profile — Brane</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --bg: #FFFFFF;
+    --bg-soft: #F6F6F7;
+    --paper: #FFFFFF;
+    --ink: #1A1A1A;
+    --ink-soft: #6D6D6D;
+    --green: #008060;
+    --green-dark: #004C3F;
+    --green-light: #95BF47;
+    --line: #E1E3E5;
+    --line-soft: #ECEDEF;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow: 0 1px 2px rgba(26,26,26,0.05), 0 6px 20px rgba(26,26,26,0.06);
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg-soft);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+
+  .wrap {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 56px 24px 120px;
+  }
+
+  header.top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .shield { width: 32px; height: 32px; flex-shrink: 0; }
+  .shield path.outline { fill: none; stroke: var(--green-dark); stroke-width: 2.2; }
+  .shield path.fill-left { fill: var(--green); }
+  .shield path.fill-right { fill: #B8BCC2; }
+
+  .brandmark {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .brandmark span {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    margin-top: 1px;
+  }
+
+  h1.hero {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(28px, 4.2vw, 38px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 10px;
+  }
+
+  p.sub {
+    color: var(--ink-soft);
+    font-size: 15.5px;
+    line-height: 1.6;
+    max-width: 56ch;
+    margin: 0 0 40px;
+  }
+
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+
+  @media (max-width: 560px) {
+    .card { padding: 22px 20px; }
+  }
+
+  .card-title {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 4px;
+  }
+
+  .card-sub {
+    font-size: 13.5px;
+    color: var(--ink-soft);
+    margin: 0 0 22px;
+  }
+
+  .kv-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+    padding: 13px 0;
+    border-top: 1px solid var(--line-soft);
+  }
+  .kv-row:first-of-type { border-top: none; padding-top: 0; }
+
+  .kv-row .k {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .kv-row .v {
+    font-size: 14.5px;
+    font-weight: 600;
+    text-align: right;
+    word-break: break-word;
+  }
+  .kv-row .v.mono {
+    font-family: 'SFMono-Regular', Consolas, monospace;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 999px;
+  }
+  .badge-pro { background: #E3F1E1; color: #0F5132; }
+  .badge-free { background: var(--bg-soft); color: var(--ink-soft); border: 1px solid var(--line); }
+  .badge-cancelled { background: #FCF0D9; color: #8A5A15; }
+  .badge-suspended { background: #FBE2E1; color: #B02A28; }
+
+  .usage-track {
+    width: 100%;
+    height: 8px;
+    background: var(--bg-soft);
+    border: 1px solid var(--line-soft);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 10px;
+  }
+  .usage-fill {
+    height: 100%;
+    background: var(--green);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+  }
+  .usage-caption {
+    font-size: 12.5px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+  }
+
+  .btn {
+    font-family: var(--font-body);
+    font-size: 13.5px;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 11px 20px;
+    cursor: pointer;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.15s ease, opacity 0.15s ease, transform 0.1s ease;
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn:disabled { opacity: 0.55; cursor: default; }
+
+  .btn-primary { background: var(--green); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--green-dark); }
+
+  .btn-secondary {
+    background: var(--paper);
+    color: var(--ink);
+    border: 1px solid var(--line);
+  }
+  .btn-secondary:hover:not(:disabled) { background: var(--bg-soft); border-color: #C9CCD1; }
+
+  .btn-danger {
+    background: var(--paper);
+    color: #B02A28;
+    border: 1px solid #F5C2C0;
+  }
+  .btn-danger:hover:not(:disabled) { background: #FDF1F0; }
+
+  .status-line {
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  .status-line strong { color: var(--ink); }
+
+  .section-divider {
+    height: 1px;
+    background: var(--line-soft);
+    margin: 28px 0 0;
+  }
+
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+  @media (max-width: 640px) {
+    .modules-grid { grid-template-columns: 1fr; }
+  }
+
+  .module-block .module-title {
+    font-family: var(--font-body);
+    font-size: 12.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--green-dark);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .module-count {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ink-soft);
+    background: var(--bg-soft);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 2px 9px;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .item-list { display: flex; flex-direction: column; }
+
+  .item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 11px 0;
+    border-top: 1px solid var(--line-soft);
+  }
+  .item-row:first-child { border-top: none; }
+
+  .item-info { min-width: 0; }
+  .item-name {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .item-date {
+    font-size: 11.5px;
+    color: var(--ink-soft);
+    margin-top: 2px;
+  }
+
+  .item-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .item-action-btn {
+    font-family: var(--font-body);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 11px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  }
+  .item-action-btn:hover { color: var(--ink); border-color: #C9CCD1; background: var(--bg-soft); }
+  .item-action-btn:disabled { opacity: 0.55; cursor: default; }
+  .item-action-delete:hover { color: #B02A28; border-color: #F5C2C0; background: #FDF1F0; }
+
+  .empty-note {
+    font-size: 13px;
+    color: var(--ink-soft);
+    padding: 6px 0 4px;
+  }
+
+  .signedin-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 16px 24px 0;
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .signedin-bar a, .signedin-bar button {
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 6px 14px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .signedin-bar a:hover, .signedin-bar button:hover { color: var(--ink); border-color: #C9CCD1; }
+
+  #auth-loading {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 96px 24px 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .auth-loading-spinner {
+    width: 26px; height: 26px;
+    border: 3px solid var(--line);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: auth-spin 0.7s linear infinite;
+  }
+  @keyframes auth-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .auth-loading-spinner { animation: none; } }
+
+  #auth-screen {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 96px 24px 120px;
+  }
+  .auth-card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow);
+    padding: 40px 36px;
+    text-align: center;
+  }
+  .auth-brandmark {
+    font-family: var(--font-display);
+    font-size: 19px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .auth-lead { font-size: 14px; color: var(--ink-soft); margin-bottom: 22px; }
+  .auth-card .btn { width: 100%; justify-content: center; }
+
+  .toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 18px;
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="auth-loading">
+  <div class="auth-loading-spinner"></div>
+</div>
+
+<div id="auth-screen" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-brandmark">Brane</div>
+    <p class="auth-lead">Sign in to view your profile.</p>
+    <a class="btn btn-primary" href="index.html">Go to sign in</a>
+  </div>
+</div>
+
+<div id="app-gate" style="display:none;">
+<div class="signedin-bar">
+  <span id="signedInEmail"></span>
+  <a href="app.html">Tools</a>
+  <button type="button" id="auth-signout">Sign out</button>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <svg class="shield" viewBox="0 0 40 44" xmlns="http://www.w3.org/2000/svg">
+      <path class="fill-left" d="M20 2 L4 8 V29 L20 42 Z"/>
+      <path class="fill-right" d="M20 2 L36 8 V29 L20 42 Z"/>
+      <path class="outline" d="M20 2 L36 8 V29 L20 42 L4 29 V8 Z"/>
+    </svg>
+    <div class="brandmark">Brane<span>Your account</span></div>
+  </header>
+
+  <h1 class="hero">Your profile</h1>
+  <p class="sub">Account details, your subscription, monthly usage, and everything you've saved across Brand Identity, OD, HR, and Scan.</p>
+
+  <!-- Account -->
+  <div class="card">
+    <div class="card-title">Account</div>
+    <div class="card-sub">Basic details for the account you're signed in with.</div>
+    <div class="kv-row">
+      <span class="k">Email</span>
+      <span class="v" id="acctEmail">—</span>
+    </div>
+    <div class="kv-row">
+      <span class="k">Member since</span>
+      <span class="v" id="acctCreated">—</span>
+    </div>
+    <div class="kv-row">
+      <span class="k">Sign-in method</span>
+      <span class="v" id="acctProvider">—</span>
+    </div>
+  </div>
+
+  <!-- Subscription -->
+  <div class="card">
+    <div class="card-title">Subscription</div>
+    <div class="card-sub">Manage your Brane Pro plan.</div>
+    <div class="kv-row" style="border-top:none; padding-top:0;">
+      <span class="k">Plan</span>
+      <span class="v"><span class="badge" id="planBadge">—</span></span>
+    </div>
+    <p class="status-line" id="subStatusLine" style="margin-top:14px;">Checking subscription…</p>
+    <div class="btn-row" id="subButtonRow"></div>
+  </div>
+
+  <!-- Usage -->
+  <div class="card" id="usageCard">
+    <div class="card-title">Monthly usage</div>
+    <div class="card-sub">Brand generations used this billing month.</div>
+    <div id="usageBody">Loading…</div>
+  </div>
+
+  <!-- Saved items -->
+  <div class="card">
+    <div class="card-title">Saved reports</div>
+    <div class="card-sub">Everything you've saved across all four tools.</div>
+
+    <div class="modules-grid">
+      <div class="module-block">
+        <div class="module-title">Brands <span class="module-count" id="brandsCount">0</span></div>
+        <div class="item-list" id="brandsList"><div class="empty-note">Loading…</div></div>
+      </div>
+      <div class="module-block">
+        <div class="module-title">OD Reports <span class="module-count" id="odsCount">0</span></div>
+        <div class="item-list" id="odsList"><div class="empty-note">Loading…</div></div>
+      </div>
+      <div class="module-block">
+        <div class="module-title">Job Descriptions <span class="module-count" id="jdsCount">0</span></div>
+        <div class="item-list" id="jdsList"><div class="empty-note">Loading…</div></div>
+      </div>
+      <div class="module-block">
+        <div class="module-title">Scans <span class="module-count" id="scansCount">0</span></div>
+        <div class="item-list" id="scansList"><div class="empty-note">Loading…</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /#app-gate -->
+
+<div class="toast" id="toast">Copied</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDnq6YRS5BEboIlUtf9Pbuct72Y1upzieg",
+  authDomain: "braneup-250cb.firebaseapp.com",
+  projectId: "braneup-250cb",
+  storageBucket: "braneup-250cb.firebasestorage.app",
+  messagingSenderId: "173132439683",
+  appId: "1:173132439683:web:49eee1e3cd9bc84d1bfbb6"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+const authLoading = document.getElementById('auth-loading');
+const authScreen = document.getElementById('auth-screen');
+const appGate = document.getElementById('app-gate');
+const signedInEmail = document.getElementById('signedInEmail');
+const authSignoutBtn = document.getElementById('auth-signout');
+const toast = document.getElementById('toast');
+
+function showToast(msg) {
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 1800);
+}
+
+authSignoutBtn.addEventListener('click', () => auth.signOut().then(() => { window.location.href = 'index.html'; }));
+
+function escapeHtml(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+auth.onAuthStateChanged((user) => {
+  authLoading.style.display = 'none';
+  if (user) {
+    authScreen.style.display = 'none';
+    appGate.style.display = '';
+    loadEverything(user);
+  } else {
+    authScreen.style.display = '';
+    appGate.style.display = 'none';
+  }
+});
+
+async function loadEverything(user) {
+  renderAccount(user);
+  await loadUserDoc(user);
+  loadModule(user, 'brands', 'brandsList', 'brandsCount', 'name', 'app.html');
+  loadModule(user, 'ods', 'odsList', 'odsCount', 'name', 'od.html');
+  loadModule(user, 'jds', 'jdsList', 'jdsCount', 'name', 'hr.html');
+  loadModule(user, 'scans', 'scansList', 'scansCount', 'name', 'scan.html');
+}
+
+function renderAccount(user) {
+  signedInEmail.textContent = user.email || '';
+  document.getElementById('acctEmail').textContent = user.email || '—';
+  const created = user.metadata && user.metadata.creationTime ? new Date(user.metadata.creationTime) : null;
+  document.getElementById('acctCreated').textContent = created ? created.toLocaleDateString() : '—';
+  const providerId = (user.providerData && user.providerData[0] && user.providerData[0].providerId) || 'password';
+  document.getElementById('acctProvider').textContent = providerId === 'google.com' ? 'Google' : 'Email & password';
+}
+
+function isProActive(userData) {
+  const sub = userData && userData.subscription;
+  if (!sub) return !!(userData && userData.proStatus === 'active');
+  if (sub.status === 'ACTIVE') return true;
+  if (sub.cancelAtPeriodEnd && sub.currentPeriodEnd) {
+    const end = sub.currentPeriodEnd.toDate ? sub.currentPeriodEnd.toDate() : new Date(sub.currentPeriodEnd);
+    return end > new Date();
+  }
+  return false;
+}
+
+let cachedUserData = {};
+
+async function loadUserDoc(user) {
+  const planBadge = document.getElementById('planBadge');
+  const statusLine = document.getElementById('subStatusLine');
+  const buttonRow = document.getElementById('subButtonRow');
+  const usageBody = document.getElementById('usageBody');
+  const usageCard = document.getElementById('usageCard');
+
+  try {
+    const snap = await db.collection('users').doc(user.uid).get();
+    const data = snap.exists ? snap.data() : {};
+    cachedUserData = data;
+    const sub = data.subscription || {};
+    const pro = isProActive(data);
+
+    // Plan badge
+    planBadge.textContent = pro ? 'Pro' : 'Free';
+    planBadge.className = 'badge ' + (pro ? 'badge-pro' : 'badge-free');
+
+    // Status line + buttons
+    buttonRow.innerHTML = '';
+    if (!sub.paypalSubscriptionId) {
+      statusLine.innerHTML = pro
+        ? 'You have Pro access.'
+        : 'You are on the <strong>Free</strong> plan — 5 brand generations per month.';
+      if (!pro) {
+        buttonRow.innerHTML = '<a class="btn btn-primary" href="index.html#pricing">Upgrade to Pro</a>';
+      }
+    } else if (sub.status === 'ACTIVE') {
+      const end = sub.currentPeriodEnd ? (sub.currentPeriodEnd.toDate ? sub.currentPeriodEnd.toDate() : new Date(sub.currentPeriodEnd)) : null;
+      statusLine.innerHTML = end
+        ? `<strong>Brane Pro</strong> · renews ${escapeHtml(end.toLocaleDateString())}`
+        : '<strong>Brane Pro</strong> · active';
+      buttonRow.innerHTML = '<button type="button" class="btn btn-danger" id="cancelSubBtn">Cancel subscription</button>';
+    } else if (sub.cancelAtPeriodEnd && sub.currentPeriodEnd) {
+      const end = sub.currentPeriodEnd.toDate ? sub.currentPeriodEnd.toDate() : new Date(sub.currentPeriodEnd);
+      const stillActive = end > new Date();
+      statusLine.innerHTML = stillActive
+        ? `Cancelled — Pro access continues until <strong>${escapeHtml(end.toLocaleDateString())}</strong>.`
+        : 'Your Pro access has ended.';
+      if (!stillActive) {
+        buttonRow.innerHTML = '<a class="btn btn-primary" href="index.html#pricing">Upgrade to Pro</a>';
+      }
+    } else {
+      const statusLabels = {
+        SUSPENDED: 'Suspended — payment issue with PayPal.',
+        EXPIRED: 'Your subscription has expired.',
+        REFUNDED: 'This subscription was refunded.',
+        REVERSED: 'This payment was reversed.'
+      };
+      statusLine.textContent = statusLabels[sub.status] || `Subscription status: ${sub.status || 'unknown'}`;
+      if (!pro) {
+        buttonRow.innerHTML = '<a class="btn btn-primary" href="index.html#pricing">Upgrade to Pro</a>';
+      }
+    }
+
+    const cancelBtn = document.getElementById('cancelSubBtn');
+    if (cancelBtn) cancelBtn.addEventListener('click', () => handleCancelSubscription(user));
+
+    // Usage — only meaningful on the Free plan (brand tool is metered,
+    // OD/HR/Scan are Pro-only per api/_lib/checkAccess.js)
+    if (pro) {
+      usageCard.style.display = 'none';
+    } else {
+      usageCard.style.display = '';
+      const now = new Date();
+      const periodStart = data.brandGenerationsPeriodStart
+        ? (data.brandGenerationsPeriodStart.toDate ? data.brandGenerationsPeriodStart.toDate() : new Date(data.brandGenerationsPeriodStart))
+        : null;
+      const inCurrentPeriod = periodStart && periodStart.getUTCFullYear() === now.getUTCFullYear() && periodStart.getUTCMonth() === now.getUTCMonth();
+      const used = inCurrentPeriod ? (data.brandGenerationsUsed || 0) : 0;
+      const limit = 5;
+      const pct = Math.min(100, Math.round((used / limit) * 100));
+
+      usageBody.innerHTML = `
+        <div class="kv-row" style="border-top:none; padding-top:0;">
+          <span class="k">Brand generations</span>
+          <span class="v">${used} / ${limit}</span>
+        </div>
+        <div class="usage-track"><div class="usage-fill" style="width:${pct}%;"></div></div>
+        <div class="usage-caption">Resets at the start of each calendar month.</div>
+      `;
+    }
+  } catch (err) {
+    console.error('Failed to load account/subscription data:', err);
+    statusLine.textContent = 'Could not load subscription status.';
+    usageBody.textContent = 'Could not load usage.';
+  }
+}
+
+async function handleCancelSubscription(user) {
+  const confirmed = confirm(
+    'Cancel your Brane Pro subscription?\n\nYou will not be charged again. Your Pro access remains available through the period you\'ve already paid for.'
+  );
+  if (!confirmed) return;
+
+  const btn = document.getElementById('cancelSubBtn');
+  btn.disabled = true;
+  btn.textContent = 'Cancelling…';
+
+  try {
+    const idToken = await user.getIdToken();
+    const res = await fetch('/api/cancel-subscription', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + idToken, 'Content-Type': 'application/json' }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not cancel your subscription.');
+
+    showToast('Subscription cancelled');
+    await loadUserDoc(user);
+  } catch (err) {
+    console.error('Cancellation failed:', err);
+    showToast(err.message || 'Could not cancel subscription');
+    btn.disabled = false;
+    btn.textContent = 'Cancel subscription';
+  }
+}
+
+async function loadModule(user, collectionName, listElId, countElId, nameField, toolPage) {
+  const listEl = document.getElementById(listElId);
+  const countEl = document.getElementById(countElId);
+  try {
+    const snap = await db.collection('users').doc(user.uid).collection(collectionName).orderBy('createdAt', 'desc').get();
+    countEl.textContent = snap.size;
+
+    if (snap.empty) {
+      listEl.innerHTML = '<div class="empty-note">Nothing saved yet.</div>';
+      return;
+    }
+
+    listEl.innerHTML = '';
+    snap.forEach(doc => {
+      const d = doc.data();
+      const dateStr = (d.createdAt && d.createdAt.toDate) ? d.createdAt.toDate().toLocaleDateString() : '';
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.innerHTML = `
+        <div class="item-info">
+          <div class="item-name">${escapeHtml(d.name || 'Untitled')}</div>
+          <div class="item-date">${escapeHtml(dateStr)}</div>
+        </div>
+        <div class="item-actions">
+          <a class="item-action-btn" href="${toolPage}?view=${encodeURIComponent(collectionName)}&id=${encodeURIComponent(doc.id)}">Open</a>
+          <button type="button" class="item-action-btn item-action-delete">Delete</button>
+        </div>
+      `;
+      row.querySelector('.item-action-delete').addEventListener('click', async (e) => {
+        if (!confirm('Delete this saved item? This cannot be undone.')) return;
+        e.target.disabled = true;
+        try {
+          await db.collection('users').doc(user.uid).collection(collectionName).doc(doc.id).delete();
+          row.remove();
+          const remaining = listEl.querySelectorAll('.item-row').length;
+          countEl.textContent = remaining;
+          if (!remaining) listEl.innerHTML = '<div class="empty-note">Nothing saved yet.</div>';
+        } catch (err) {
+          console.error('Delete failed:', err);
+          e.target.disabled = false;
+          showToast('Could not delete — try again');
+        }
+      });
+      listEl.appendChild(row);
+    });
+  } catch (err) {
+    console.error(`Failed to load ${collectionName}:`, err);
+    listEl.innerHTML = '<div class="empty-note">Could not load.</div>';
+  }
+}
+</script>
+
+</body>
+</html>
