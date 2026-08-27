@@ -1,8 +1,9 @@
 // api/_lib/paypal.js
 //
-// Shared PayPal REST helpers for api/paypal-webhook.js. Live endpoints
-// only — per the integration brief (Phase 10), production must never
-// call PayPal's Sandbox host, so this is not configurable via env var.
+// Shared PayPal REST helpers for api/paypal-webhook.js and
+// api/cancel-subscription.js. Live endpoints only — per the
+// integration brief, production must never call PayPal's Sandbox
+// host, so this is not configurable via env var.
 
 const PAYPAL_API_BASE = 'https://api-m.paypal.com';
 
@@ -98,4 +99,42 @@ async function getSubscriptionDetails(subscriptionId) {
   return res.json();
 }
 
-module.exports = { getAccessToken, verifyWebhookSignature, getSubscriptionDetails, PAYPAL_API_BASE };
+// Cancels a subscription on PayPal's side. This only stops future
+// billing — it does not touch Firestore. api/cancel-subscription.js
+// (the caller) and api/paypal-webhook.js (on the resulting
+// BILLING.SUBSCRIPTION.CANCELLED event) are responsible for updating
+// the user's plan/subscription record.
+async function cancelSubscription(subscriptionId, reason = 'Customer requested cancellation') {
+  if (!subscriptionId) {
+    throw new Error('Missing PayPal subscription ID.');
+  }
+
+  const accessToken = await getAccessToken();
+  const res = await fetch(
+    `${PAYPAL_API_BASE}/v1/billing/subscriptions/${encodeURIComponent(subscriptionId)}/cancel`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ reason })
+    }
+  );
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`PayPal cancel-subscription failed (${res.status}): ${text}`);
+  }
+
+  // PayPal returns 204 No Content on success — nothing to parse.
+  return true;
+}
+
+module.exports = {
+  getAccessToken,
+  verifyWebhookSignature,
+  getSubscriptionDetails,
+  cancelSubscription,
+  PAYPAL_API_BASE
+};
