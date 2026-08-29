@@ -13,7 +13,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Inter+Tight:wght@500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
-<script src="https://www.paypal.com/sdk/js?client-id=BAA8NX7AazTuCQR2o1eJdLkjk9w1JcTGjdANVO4D3crO3JF47jokm0wgUZbNeFrHZEh-qgThtRryhsNZGk&components=hosted-buttons&disable-funding=venmo&currency=USD"></script>
 <style>
   :root{
     --bg: #FFFFFF;
@@ -1851,11 +1850,7 @@
             </li>
           </ul>
           <div class="pricing-cta">
-            <a href="#" id="get-pro-btn" class="btn btn-primary btn-block">Get Pro</a>
-            <div id="paypal-pro-wrap" style="display:none;">
-              <div id="paypal-container-CVSTVKADMVCSE"></div>
-              <p class="pricing-sublabel" style="text-align:center;margin-top:10px;">Secure checkout via PayPal · pay with the email you signed in with</p>
-            </div>
+            <a href="mailto:braneup@gmail.com?subject=Upgrade%20to%20Brane%20Pro" class="btn btn-primary btn-block">Contact us to upgrade</a>
           </div>
         </div>
 
@@ -1998,17 +1993,8 @@ function closeAuthModal() {
   document.body.style.overflow = '';
 }
 
-// Most CTAs redirect to a tool page after auth. The "Get Pro" CTA is
-// the one exception — it wants to stay on this page and reveal the
-// PayPal button rather than navigate anywhere. See the PayPal section
-// below for what sets redirectAfterAuth to 'STAY:paypal'.
 function completeAuthRedirect() {
-  if (redirectAfterAuth === 'STAY:paypal') {
-    closeAuthModal();
-    revealPayPalButton();
-  } else {
-    window.location.href = redirectAfterAuth;
-  }
+  window.location.href = redirectAfterAuth;
 }
 
 authModalClose.addEventListener('click', closeAuthModal);
@@ -2122,45 +2108,6 @@ document.querySelectorAll('a[href="od.html"], a[href="hr.html"], a[href="scan.ht
     routeToDestination(link.getAttribute('href'));
   });
 });
-
-// =====================================================================
-// PayPal — "Get Pro" reveals the real Hosted Button checkout only once
-// we know who's signing up, since Hosted Buttons expose no client-side
-// callback to attach a Firebase uid at checkout time. Linking the paid
-// subscription back to this account happens server-side afterward, by
-// matching the PayPal checkout email to this Firebase account's email
-// (see api/paypal-webhook.js) — so the visitor should check out with
-// the same email as the one they're signed in with here.
-// =====================================================================
-const getProBtn = document.getElementById('get-pro-btn');
-const paypalProWrap = document.getElementById('paypal-pro-wrap');
-let paypalButtonRendered = false;
-
-function revealPayPalButton() {
-  if (getProBtn) getProBtn.style.display = 'none';
-  if (paypalProWrap) paypalProWrap.style.display = 'block';
-  if (paypalButtonRendered || typeof paypal === 'undefined' || !paypal.HostedButtons) return;
-  paypalButtonRendered = true;
-  paypal.HostedButtons({
-    hostedButtonId: 'CVSTVKADMVCSE'
-  }).render('#paypal-container-CVSTVKADMVCSE');
-}
-
-if (getProBtn) {
-  getProBtn.addEventListener('click', async (e) => {
-    e.preventDefault();
-    const user = await getCurrentUser();
-    if (user) {
-      revealPayPalButton();
-    } else {
-      openAuthModal('STAY:paypal');
-    }
-  });
-}
-
-// If the visitor is already signed in when the page loads, swap the
-// button in right away rather than waiting for a click.
-getCurrentUser().then((user) => { if (user) revealPayPalButton(); });
 
 // =====================================================================
 

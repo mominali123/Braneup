@@ -466,12 +466,12 @@
   <!-- Subscription -->
   <div class="card">
     <div class="card-title">Subscription</div>
-    <div class="card-sub">Manage your Brane Pro plan.</div>
+    <div class="card-sub">Your Brane Pro plan status.</div>
     <div class="kv-row" style="border-top:none; padding-top:0;">
       <span class="k">Plan</span>
       <span class="v"><span class="badge" id="planBadge">—</span></span>
     </div>
-    <p class="status-line" id="subStatusLine" style="margin-top:14px;">Checking subscription…</p>
+    <p class="status-line" id="subStatusLine" style="margin-top:14px;">Checking plan…</p>
     <div class="btn-row" id="subButtonRow"></div>
   </div>
 
@@ -574,14 +574,7 @@ function renderAccount(user) {
 }
 
 function isProActive(userData) {
-  const sub = userData && userData.subscription;
-  if (!sub) return !!(userData && userData.proStatus === 'active');
-  if (sub.status === 'ACTIVE') return true;
-  if (sub.cancelAtPeriodEnd && sub.currentPeriodEnd) {
-    const end = sub.currentPeriodEnd.toDate ? sub.currentPeriodEnd.toDate() : new Date(sub.currentPeriodEnd);
-    return end > new Date();
-  }
-  return false;
+  return !!(userData && userData.proStatus === 'active');
 }
 
 let cachedUserData = {};
@@ -597,7 +590,6 @@ async function loadUserDoc(user) {
     const snap = await db.collection('users').doc(user.uid).get();
     const data = snap.exists ? snap.data() : {};
     cachedUserData = data;
-    const sub = data.subscription || {};
     const pro = isProActive(data);
 
     // Plan badge
@@ -606,43 +598,12 @@ async function loadUserDoc(user) {
 
     // Status line + buttons
     buttonRow.innerHTML = '';
-    if (!sub.paypalSubscriptionId) {
-      statusLine.innerHTML = pro
-        ? 'You have Pro access.'
-        : 'You are on the <strong>Free</strong> plan — 5 brand generations per month.';
-      if (!pro) {
-        buttonRow.innerHTML = '<a class="btn btn-primary" href="index.html#pricing">Upgrade to Pro</a>';
-      }
-    } else if (sub.status === 'ACTIVE') {
-      const end = sub.currentPeriodEnd ? (sub.currentPeriodEnd.toDate ? sub.currentPeriodEnd.toDate() : new Date(sub.currentPeriodEnd)) : null;
-      statusLine.innerHTML = end
-        ? `<strong>Brane Pro</strong> · renews ${escapeHtml(end.toLocaleDateString())}`
-        : '<strong>Brane Pro</strong> · active';
-      buttonRow.innerHTML = '<button type="button" class="btn btn-danger" id="cancelSubBtn">Cancel subscription</button>';
-    } else if (sub.cancelAtPeriodEnd && sub.currentPeriodEnd) {
-      const end = sub.currentPeriodEnd.toDate ? sub.currentPeriodEnd.toDate() : new Date(sub.currentPeriodEnd);
-      const stillActive = end > new Date();
-      statusLine.innerHTML = stillActive
-        ? `Cancelled — Pro access continues until <strong>${escapeHtml(end.toLocaleDateString())}</strong>.`
-        : 'Your Pro access has ended.';
-      if (!stillActive) {
-        buttonRow.innerHTML = '<a class="btn btn-primary" href="index.html#pricing">Upgrade to Pro</a>';
-      }
-    } else {
-      const statusLabels = {
-        SUSPENDED: 'Suspended — payment issue with PayPal.',
-        EXPIRED: 'Your subscription has expired.',
-        REFUNDED: 'This subscription was refunded.',
-        REVERSED: 'This payment was reversed.'
-      };
-      statusLine.textContent = statusLabels[sub.status] || `Subscription status: ${sub.status || 'unknown'}`;
-      if (!pro) {
-        buttonRow.innerHTML = '<a class="btn btn-primary" href="index.html#pricing">Upgrade to Pro</a>';
-      }
+    statusLine.innerHTML = pro
+      ? 'You have Pro access.'
+      : 'You are on the <strong>Free</strong> plan — 5 brand generations per month.';
+    if (!pro) {
+      buttonRow.innerHTML = '<a class="btn btn-primary" href="mailto:braneup@gmail.com?subject=Upgrade%20to%20Brane%20Pro">Upgrade to Pro</a>';
     }
-
-    const cancelBtn = document.getElementById('cancelSubBtn');
-    if (cancelBtn) cancelBtn.addEventListener('click', () => handleCancelSubscription(user));
 
     // Usage — only meaningful on the Free plan (brand tool is metered,
     // OD/HR/Scan are Pro-only per api/_lib/checkAccess.js)
@@ -669,38 +630,9 @@ async function loadUserDoc(user) {
       `;
     }
   } catch (err) {
-    console.error('Failed to load account/subscription data:', err);
-    statusLine.textContent = 'Could not load subscription status.';
+    console.error('Failed to load account/plan data:', err);
+    statusLine.textContent = 'Could not load plan status.';
     usageBody.textContent = 'Could not load usage.';
-  }
-}
-
-async function handleCancelSubscription(user) {
-  const confirmed = confirm(
-    'Cancel your Brane Pro subscription?\n\nYou will not be charged again. Your Pro access remains available through the period you\'ve already paid for.'
-  );
-  if (!confirmed) return;
-
-  const btn = document.getElementById('cancelSubBtn');
-  btn.disabled = true;
-  btn.textContent = 'Cancelling…';
-
-  try {
-    const idToken = await user.getIdToken();
-    const res = await fetch('/api/cancel-subscription', {
-      method: 'POST',
-      headers: { 'Authorization': 'Bearer ' + idToken, 'Content-Type': 'application/json' }
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Could not cancel your subscription.');
-
-    showToast('Subscription cancelled');
-    await loadUserDoc(user);
-  } catch (err) {
-    console.error('Cancellation failed:', err);
-    showToast(err.message || 'Could not cancel subscription');
-    btn.disabled = false;
-    btn.textContent = 'Cancel subscription';
   }
 }
 
