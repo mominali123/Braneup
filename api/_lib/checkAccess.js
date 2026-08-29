@@ -18,29 +18,11 @@
 // ---------------------------------------------------------------------
 // PRO STATUS — SOURCE OF TRUTH
 // ---------------------------------------------------------------------
-// api/paypal-webhook.js is the only writer of users/{uid}.subscription.
-// This file only *reads* it. Schema, as written by the webhook:
-//
-//   subscription: {
-//     provider: 'paypal',
-//     paypalSubscriptionId: string,
-//     paypalEmail: string,
-//     status: 'APPROVAL_PENDING' | 'APPROVED' | 'ACTIVE' | 'SUSPENDED'
-//           | 'CANCELLED' | 'EXPIRED' | 'REFUNDED' | 'REVERSED',
-//     cancelAtPeriodEnd: boolean,
-//     currentPeriodEnd: Firestore Timestamp | null,
-//     updatedAt: Firestore Timestamp
-//   }
-//
-// A user counts as Pro if status is ACTIVE, OR the subscription was
-// cancelled but the period they already paid for hasn't ended yet
-// (refund-policy.html §5: cancelling stops the *next* renewal — access
-// continues through the period already paid for). SUSPENDED, EXPIRED,
-// REFUNDED, and REVERSED never grant access.
-//
-// Back-compat: if a user doc has no `subscription` object at all (e.g.
-// a manually comped account), a manually-set `proStatus: 'active'` is
-// still honored.
+// Pro access is granted manually: a user counts as Pro only if their
+// Firestore users/{uid} document has proStatus: 'active', set directly
+// on the document (e.g. by an admin comping an account). There is no
+// automated payment gateway wired up — nothing here or anywhere else
+// in this file writes or reads subscription billing state.
 // ---------------------------------------------------------------------
 
 const admin = require('firebase-admin');
@@ -80,16 +62,7 @@ function isSameMonth(tsA, tsB) {
 }
 
 function isProActive(userData) {
-  const sub = userData && userData.subscription;
-  if (!sub) {
-    return !!(userData && userData.proStatus === 'active');
-  }
-  if (sub.status === 'ACTIVE') return true;
-  if (sub.cancelAtPeriodEnd && sub.currentPeriodEnd) {
-    const periodEnd = sub.currentPeriodEnd.toDate ? sub.currentPeriodEnd.toDate() : new Date(sub.currentPeriodEnd);
-    return periodEnd > new Date();
-  }
-  return false;
+  return !!(userData && userData.proStatus === 'active');
 }
 
 /**
@@ -135,7 +108,7 @@ async function checkAccess(req, tool) {
       return {
         ok: false,
         status: 403,
-        error: 'This tool is included with Brane Pro. Upgrade to unlock it.'
+        error: 'This tool is included with Brane Pro. Contact us to unlock it.'
       };
     }
     return { ok: true, uid };
@@ -158,7 +131,7 @@ async function checkAccess(req, tool) {
       return {
         ok: false,
         status: 403,
-        error: `You've used your ${FREE_BRAND_GENERATIONS_PER_MONTH} free brand generations this month. Upgrade to Pro for unlimited generations.`
+        error: `You've used your ${FREE_BRAND_GENERATIONS_PER_MONTH} free brand generations this month. Contact us to upgrade to Pro for unlimited generations.`
       };
     }
 
