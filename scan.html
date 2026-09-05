@@ -1271,7 +1271,7 @@ function renderProfileList(container, snap) {
     const item = el('div', 'profile-item');
 
     const info = el('div');
-    info.appendChild(el('div', 'profile-item-name', d.name || 'Untitled'));
+    info.appendChild(el('div', 'profile-item-name', escapeHtml(d.name || 'Untitled')));
     const dateStr = (d.createdAt && d.createdAt.toDate) ? d.createdAt.toDate().toLocaleDateString() : '';
     info.appendChild(el('div', 'profile-item-date', dateStr));
     item.appendChild(info);
@@ -1375,8 +1375,8 @@ function renderScan(report) {
 
   const meta = report.metadata || {};
   const header = el('div', 'doc-header');
-  header.appendChild(el('div', 'eyebrow', [meta.industry, meta.market].filter(Boolean).join(' · ') || 'Environmental scan'));
-  header.appendChild(el('h2', null, report.organizationName || 'Untitled Scan'));
+  header.appendChild(el('div', 'eyebrow', escapeHtml([meta.industry, meta.market].filter(Boolean).join(' · ') || 'Environmental scan')));
+  header.appendChild(el('h2', null, escapeHtml(report.organizationName || 'Untitled Scan')));
   resultEl.appendChild(header);
 
   // PESTLE

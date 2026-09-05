@@ -1190,7 +1190,7 @@ function renderProfileList(container, snap, kind) {
     const item = el('div', 'profile-item');
 
     const info = el('div');
-    info.appendChild(el('div', 'profile-item-name', d.name || 'Untitled'));
+    info.appendChild(el('div', 'profile-item-name', escapeHtml(d.name || 'Untitled')));
     const dateStr = (d.createdAt && d.createdAt.toDate) ? d.createdAt.toDate().toLocaleDateString() : '';
     info.appendChild(el('div', 'profile-item-date', dateStr));
     item.appendChild(info);
@@ -1779,8 +1779,8 @@ function renderBrand(brand) {
 
   const meta = brand.metadata || {};
   const header = el('div', 'doc-header');
-  header.appendChild(el('div', 'eyebrow', [meta.industry, meta.primaryVibe].filter(Boolean).join(' · ') || 'Brand identity system'));
-  header.appendChild(el('h2', null, brand.brandName || 'Untitled Brand'));
+  header.appendChild(el('div', 'eyebrow', escapeHtml([meta.industry, meta.primaryVibe].filter(Boolean).join(' · ') || 'Brand identity system')));
+  header.appendChild(el('h2', null, escapeHtml(brand.brandName || 'Untitled Brand')));
   resultEl.appendChild(header);
 
   // Strategy
@@ -1793,8 +1793,8 @@ function renderBrand(brand) {
   [['Purpose', s.purpose], ['Vision', s.vision], ['Mission', s.mission]].forEach(([k, v]) => {
     if (!v) return;
     const kv = el('div', 'kv');
-    kv.appendChild(el('div', 'k', k));
-    kv.appendChild(el('div', 'v', v));
+    kv.appendChild(el('div', 'k', escapeHtml(k)));
+    kv.appendChild(el('div', 'v', escapeHtml(v)));
     kvWrap.appendChild(kv);
   });
   strategySec.appendChild(kvWrap);
@@ -1802,7 +1802,7 @@ function renderBrand(brand) {
   if (Array.isArray(s.values) && s.values.length) {
     const ul = el('ul', 'plain');
     s.values.forEach(val => {
-      ul.appendChild(el('li', null, `<span class="term">${val.name || ''}</span>${val.description || ''}`));
+      ul.appendChild(el('li', null, `<span class="term">${escapeHtml(val.name || '')}</span>${escapeHtml(val.description || '')}`));
     });
     strategySec.appendChild(ul);
   }
@@ -1816,7 +1816,7 @@ function renderBrand(brand) {
     pos.appendChild(el('div', 'eyebrow', 'Positioning'));
     pos.appendChild(el('h3', null, 'Where this brand stands'));
 
-    if (p.elevatorPitch) pos.appendChild(el('p', 'tagline', '"' + p.elevatorPitch + '"'));
+    if (p.elevatorPitch) pos.appendChild(el('p', 'tagline', '"' + escapeHtml(p.elevatorPitch) + '"'));
 
     const kvWrap2 = el('div');
     [
@@ -1827,8 +1827,8 @@ function renderBrand(brand) {
     ].forEach(([k, v]) => {
       if (!v) return;
       const kv = el('div', 'kv');
-      kv.appendChild(el('div', 'k', k));
-      kv.appendChild(el('div', 'v', v));
+      kv.appendChild(el('div', 'k', escapeHtml(k)));
+      kv.appendChild(el('div', 'v', escapeHtml(v)));
       kvWrap2.appendChild(kv);
     });
     pos.appendChild(kvWrap2);
@@ -1850,10 +1850,10 @@ function renderBrand(brand) {
       btn.onclick = () => copyText(c.hex);
       const chip = el('div', 'chip');
       chip.style.background = c.hex || '#ccc';
-      chip.appendChild(el('small', null, c.hex || ''));
+      chip.appendChild(el('small', null, escapeHtml(c.hex || '')));
       btn.appendChild(chip);
-      btn.appendChild(el('div', 'name', c.name || ''));
-      btn.appendChild(el('div', 'role', c.role || ''));
+      btn.appendChild(el('div', 'name', escapeHtml(c.name || '')));
+      btn.appendChild(el('div', 'role', escapeHtml(c.role || '')));
       palette.appendChild(btn);
     });
     colorSec.appendChild(palette);
@@ -1874,7 +1874,7 @@ function renderBrand(brand) {
     const displaySpec = el('div', 'specimen', 'Aa');
     displaySpec.style.fontFamily = `'${t.displayFont}', serif`;
     displayBox.appendChild(displaySpec);
-    displayBox.appendChild(el('div', 'name', (t.displayFont || '') + ' — display'));
+    displayBox.appendChild(el('div', 'name', escapeHtml((t.displayFont || '') + ' — display')));
     pair.appendChild(displayBox);
 
     const bodyBox = el('div', 'type-sample');
@@ -1882,17 +1882,17 @@ function renderBrand(brand) {
     bodySpec.style.fontFamily = `'${t.bodyFont}', sans-serif`;
     bodySpec.style.fontWeight = '400';
     bodyBox.appendChild(bodySpec);
-    bodyBox.appendChild(el('div', 'name', (t.bodyFont || '') + ' — body'));
+    bodyBox.appendChild(el('div', 'name', escapeHtml((t.bodyFont || '') + ' — body')));
     pair.appendChild(bodyBox);
 
     typeSec.appendChild(pair);
-    if (t.rationale) typeSec.appendChild(el('div', 'v', t.rationale));
+    if (t.rationale) typeSec.appendChild(el('div', 'v', escapeHtml(t.rationale)));
 
     const tokens = vs.uiKitTokens || {};
     if (tokens.borderRadius || tokens.shadowStyle) {
       const tokenRow = el('div', 'traits');
-      if (tokens.borderRadius) tokenRow.appendChild(el('span', 'trait', 'Radius: ' + tokens.borderRadius));
-      if (tokens.shadowStyle) tokenRow.appendChild(el('span', 'trait', tokens.shadowStyle));
+      if (tokens.borderRadius) tokenRow.appendChild(el('span', 'trait', escapeHtml('Radius: ' + tokens.borderRadius)));
+      if (tokens.shadowStyle) tokenRow.appendChild(el('span', 'trait', escapeHtml(tokens.shadowStyle)));
       typeSec.appendChild(tokenRow);
     }
     resultEl.appendChild(typeSec);
@@ -1905,15 +1905,15 @@ function renderBrand(brand) {
     const voiceSec = el('section', 'block');
     voiceSec.appendChild(el('div', 'eyebrow', 'Verbal system'));
     voiceSec.appendChild(el('h3', null, 'How it sounds'));
-    if (v.tagline) voiceSec.appendChild(el('p', 'tagline', '"' + v.tagline + '"'));
+    if (v.tagline) voiceSec.appendChild(el('p', 'tagline', '"' + escapeHtml(v.tagline) + '"'));
 
     if (km.heroHeader || km.subHeader || km.socialBio) {
       const kvWrap3 = el('div');
       [['Hero header', km.heroHeader], ['Sub header', km.subHeader], ['Social bio', km.socialBio]].forEach(([k, val]) => {
         if (!val) return;
         const kv = el('div', 'kv');
-        kv.appendChild(el('div', 'k', k));
-        kv.appendChild(el('div', 'v', val));
+        kv.appendChild(el('div', 'k', escapeHtml(k)));
+        kv.appendChild(el('div', 'v', escapeHtml(val)));
         kvWrap3.appendChild(kv);
       });
       voiceSec.appendChild(kvWrap3);
@@ -1923,9 +1923,9 @@ function renderBrand(brand) {
       const ul = el('ul', 'plain');
       v.toneTraits.forEach(tt => {
         const li = el('li', null);
-        li.appendChild(el('div', null, `<span class="term">${tt.trait || ''}</span>`));
-        if (tt.howToUse) li.appendChild(el('div', 'v', '✓ ' + tt.howToUse));
-        if (tt.whatToAvoid) li.appendChild(el('div', 'v note-avoid', '✕ ' + tt.whatToAvoid));
+        li.appendChild(el('div', null, `<span class="term">${escapeHtml(tt.trait || '')}</span>`));
+        if (tt.howToUse) li.appendChild(el('div', 'v', '✓ ' + escapeHtml(tt.howToUse)));
+        if (tt.whatToAvoid) li.appendChild(el('div', 'v note-avoid', '✕ ' + escapeHtml(tt.whatToAvoid)));
         ul.appendChild(li);
       });
       voiceSec.appendChild(ul);
@@ -1941,7 +1941,7 @@ function renderBrand(brand) {
     protSec.appendChild(el('h3', null, 'Keeping it intact'));
 
     if (prot.trademarkSafetyLevel) {
-      const badge = el('span', 'risk-badge ' + riskClass(prot.trademarkSafetyLevel), prot.trademarkSafetyLevel);
+      const badge = el('span', 'risk-badge ' + riskClass(prot.trademarkSafetyLevel), escapeHtml(prot.trademarkSafetyLevel));
       const kv = el('div', 'kv');
       kv.appendChild(el('div', 'k', 'Trademark safety'));
       kv.appendChild(badge);
@@ -1950,12 +1950,12 @@ function renderBrand(brand) {
     if (prot.ipStrategy) {
       const kv = el('div', 'kv');
       kv.appendChild(el('div', 'k', 'IP strategy'));
-      kv.appendChild(el('div', 'v', prot.ipStrategy));
+      kv.appendChild(el('div', 'v', escapeHtml(prot.ipStrategy)));
       protSec.appendChild(kv);
     }
     if (Array.isArray(prot.domainSuggestions) && prot.domainSuggestions.length) {
       const traits = el('div', 'traits');
-      prot.domainSuggestions.forEach(d => traits.appendChild(el('span', 'trait', d)));
+      prot.domainSuggestions.forEach(d => traits.appendChild(el('span', 'trait', escapeHtml(d))));
       protSec.appendChild(traits);
     }
     resultEl.appendChild(protSec);

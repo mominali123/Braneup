@@ -1221,7 +1221,7 @@ function renderProfileList(container, snap) {
     const item = el('div', 'profile-item');
 
     const info = el('div');
-    info.appendChild(el('div', 'profile-item-name', d.name || 'Untitled'));
+    info.appendChild(el('div', 'profile-item-name', escapeHtml(d.name || 'Untitled')));
     const dateStr = (d.createdAt && d.createdAt.toDate) ? d.createdAt.toDate().toLocaleDateString() : '';
     info.appendChild(el('div', 'profile-item-date', dateStr));
     item.appendChild(info);
@@ -1318,17 +1318,17 @@ function renderJD(jd) {
   const version = jd.versionInfo || {};
 
   const header = el('div', 'doc-header');
-  header.appendChild(el('div', 'eyebrow', [meta.department, meta.reportingTo ? ('Reports to ' + meta.reportingTo) : null].filter(Boolean).join(' · ') || 'Job description'));
-  header.appendChild(el('h2', null, jd.jobTitle || 'Untitled Role'));
+  header.appendChild(el('div', 'eyebrow', escapeHtml([meta.department, meta.reportingTo ? ('Reports to ' + meta.reportingTo) : null].filter(Boolean).join(' · ') || 'Job description')));
+  header.appendChild(el('h2', null, escapeHtml(jd.jobTitle || 'Untitled Role')));
   resultEl.appendChild(header);
 
   // Version / meta block
   if (version.version || version.dateDocumented || version.reviewDate) {
     const metaSec = el('section', 'block');
     const traits = el('div', 'traits');
-    if (version.version) traits.appendChild(el('span', 'trait', 'Version ' + version.version));
-    if (version.dateDocumented) traits.appendChild(el('span', 'trait', 'Documented ' + version.dateDocumented));
-    if (version.reviewDate) traits.appendChild(el('span', 'trait', 'Review ' + version.reviewDate));
+    if (version.version) traits.appendChild(el('span', 'trait', escapeHtml('Version ' + version.version)));
+    if (version.dateDocumented) traits.appendChild(el('span', 'trait', escapeHtml('Documented ' + version.dateDocumented)));
+    if (version.reviewDate) traits.appendChild(el('span', 'trait', escapeHtml('Review ' + version.reviewDate)));
     metaSec.appendChild(traits);
     resultEl.appendChild(metaSec);
   }
@@ -1338,7 +1338,7 @@ function renderJD(jd) {
     const purposeSec = el('section', 'block');
     purposeSec.appendChild(el('div', 'eyebrow', 'Purpose'));
     purposeSec.appendChild(el('h3', null, 'Why this role exists'));
-    purposeSec.appendChild(el('p', 'tagline', jd.purpose));
+    purposeSec.appendChild(el('p', 'tagline', escapeHtml(jd.purpose)));
     resultEl.appendChild(purposeSec);
   }
 
@@ -1363,7 +1363,7 @@ function renderJD(jd) {
     if (Array.isArray(spec.skillsAndCapabilities) && spec.skillsAndCapabilities.length) {
       specSec.appendChild(el('div', 'k', 'Skills & capabilities'));
       const traits = el('div', 'traits');
-      spec.skillsAndCapabilities.forEach(s => traits.appendChild(el('span', 'trait', s)));
+      spec.skillsAndCapabilities.forEach(s => traits.appendChild(el('span', 'trait', escapeHtml(s))));
       specSec.appendChild(traits);
     }
     if (Array.isArray(spec.keyResultAreas) && spec.keyResultAreas.length) {
@@ -1385,8 +1385,8 @@ function renderJD(jd) {
     [['Years', exp.years], ['Relevance', exp.relevance], ['Quality', exp.quality]].forEach(([k, v]) => {
       if (!v) return;
       const kv = el('div', 'kv');
-      kv.appendChild(el('div', 'k', k));
-      kv.appendChild(el('div', 'v', v));
+      kv.appendChild(el('div', 'k', escapeHtml(k)));
+      kv.appendChild(el('div', 'v', escapeHtml(v)));
       kvWrap.appendChild(kv);
     });
     expSec.appendChild(kvWrap);
@@ -1403,8 +1403,8 @@ function renderJD(jd) {
     [['Internal customers', inter.internalCustomers], ['Internal customer of', inter.internalCustomerOf]].forEach(([k, v]) => {
       if (!v) return;
       const kv = el('div', 'kv');
-      kv.appendChild(el('div', 'k', k));
-      kv.appendChild(el('div', 'v', v));
+      kv.appendChild(el('div', 'k', escapeHtml(k)));
+      kv.appendChild(el('div', 'v', escapeHtml(v)));
       kvWrap.appendChild(kv);
     });
     interSec.appendChild(kvWrap);

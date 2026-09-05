@@ -1531,7 +1531,7 @@ function renderProfileList(container, snap, kind) {
     const item = el('div', 'profile-item');
 
     const info = el('div');
-    info.appendChild(el('div', 'profile-item-name', d.name || 'Untitled'));
+    info.appendChild(el('div', 'profile-item-name', escapeHtml(d.name || 'Untitled')));
     const dateStr = (d.createdAt && d.createdAt.toDate) ? d.createdAt.toDate().toLocaleDateString() : '';
     info.appendChild(el('div', 'profile-item-date', dateStr));
     item.appendChild(info);
@@ -1670,8 +1670,8 @@ function renderOD(report) {
 
   const meta = report.metadata || {};
   const header = el('div', 'doc-header');
-  header.appendChild(el('div', 'eyebrow', [meta.industry, meta.size].filter(Boolean).join(' · ') || 'Organizational development diagnostic'));
-  header.appendChild(el('h2', null, report.organizationName || 'Untitled Organization'));
+  header.appendChild(el('div', 'eyebrow', escapeHtml([meta.industry, meta.size].filter(Boolean).join(' · ') || 'Organizational development diagnostic')));
+  header.appendChild(el('h2', null, escapeHtml(report.organizationName || 'Untitled Organization')));
   resultEl.appendChild(header);
 
   const design = report.organizationalDesign || {};
@@ -1708,7 +1708,7 @@ function renderOD(report) {
   if (Array.isArray(contextual.hrActivities) && contextual.hrActivities.length) {
     ctxSec.appendChild(el('div', 'k', defLabel('HR activities to prioritize')));
     const ul = el('ul', 'plain');
-    contextual.hrActivities.forEach(item => ul.appendChild(el('li', null, item)));
+    contextual.hrActivities.forEach(item => ul.appendChild(el('li', null, escapeHtml(item))));
     ctxSec.appendChild(ul);
   }
   resultEl.appendChild(ctxSec);
@@ -1766,7 +1766,7 @@ function renderOD(report) {
   // Culture
   const cultureSec = el('section', 'block');
   cultureSec.appendChild(el('div', 'eyebrow', defLabel('Organizational culture')));
-  cultureSec.appendChild(el('h3', null, culture.cultureType ? ('Profile: ' + culture.cultureType) : 'Culture profile'));
+  cultureSec.appendChild(el('h3', null, culture.cultureType ? ('Profile: ' + escapeHtml(culture.cultureType)) : 'Culture profile'));
 
   const cd = culture.dimensions || {};
   addTraitRow(cultureSec, [
@@ -1821,19 +1821,19 @@ function renderOD(report) {
     if (Array.isArray(rec.quickWins) && rec.quickWins.length) {
       recSec.appendChild(el('div', 'k', defLabel('Quick wins')));
       const ul4 = el('ul', 'plain');
-      rec.quickWins.forEach(item => ul4.appendChild(el('li', null, item)));
+      rec.quickWins.forEach(item => ul4.appendChild(el('li', null, escapeHtml(item))));
       recSec.appendChild(ul4);
     }
     if (Array.isArray(rec.priorities) && rec.priorities.length) {
       recSec.appendChild(el('div', 'k', defLabel('Next 90 days')));
       const ul5 = el('ul', 'plain');
-      rec.priorities.forEach(item => ul5.appendChild(el('li', null, item)));
+      rec.priorities.forEach(item => ul5.appendChild(el('li', null, escapeHtml(item))));
       recSec.appendChild(ul5);
     }
     if (Array.isArray(rec.risks) && rec.risks.length) {
       recSec.appendChild(el('div', 'k', defLabel('Risks to watch')));
       const ul6 = el('ul', 'plain');
-      rec.risks.forEach(item => ul6.appendChild(el('li', null, item)));
+      rec.risks.forEach(item => ul6.appendChild(el('li', null, escapeHtml(item))));
       recSec.appendChild(ul6);
     }
     resultEl.appendChild(recSec);
