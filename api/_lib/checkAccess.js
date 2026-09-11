@@ -29,6 +29,34 @@ const admin = require('firebase-admin');
 
 const FREE_BRAND_GENERATIONS_PER_MONTH = 5;
 
+// ---------------------------------------------------------------------
+// BASIC RATE LIMITING
+// ---------------------------------------------------------------------
+// A minimum gap, per user per tool, between accepted generation
+// requests. This is a simple cooldown stored on the user's own
+// Firestore document (users/{uid}.generationCooldowns.<tool>), not a
+// sliding-window or token-bucket limiter — it exists to stop a script
+// from hammering an endpoint in a tight loop (which costs OpenRouter
+// credits per call even on failure paths upstream of this check), not
+// to enforce a precise rate. Pro tools have no monthly quota at all,
+// so this is their only defense against runaway/automated use.
+//
+// Known limitation: the read-then-write below is not a Firestore
+// transaction, so two requests arriving within milliseconds of each
+// other could both pass the check before either write lands. That's
+// an acceptable gap for a "basic" limiter aimed at scripted abuse
+// (which retries far faster than milliseconds apart); it is not
+// intended to be airtight against a determined, carefully-timed
+// attacker. Tighten with a transaction if that ever matters more than
+// the added latency/cost of a transactional read+write on every call.
+// ---------------------------------------------------------------------
+const COOLDOWN_SECONDS = {
+  brand: 15,
+  od: 20,
+  hr: 20,
+  scan: 20
+};
+
 function loadServiceAccount() {
   const raw = (process.env.FIREBASE_SERVICE_ACCOUNT_KEY || '').trim();
   if (!raw) return null;
@@ -63,6 +91,47 @@ function isSameMonth(tsA, tsB) {
 
 function isProActive(userData) {
   return !!(userData && userData.proStatus === 'active');
+}
+
+/**
+ * Enforces the per-tool cooldown for a user. Reads the last-accepted
+ * timestamp out of the already-fetched `userData` (no extra read), and
+ * if enough time has passed, stamps a fresh timestamp so the next call
+ * is measured against this one.
+ *
+ * @param {FirebaseFirestore.DocumentReference} userRef
+ * @param {object} userData - already-fetched data() for this user
+ * @param {'brand'|'od'|'hr'|'scan'} tool
+ * @returns {Promise<{limited: false} | {limited: true, retryAfter: number}>}
+ */
+async function enforceCooldown(userRef, userData, tool) {
+  const cooldownSeconds = COOLDOWN_SECONDS[tool] || 15;
+  const lastAt = userData.generationCooldowns && userData.generationCooldowns[tool]
+    ? userData.generationCooldowns[tool].toDate()
+    : null;
+
+  if (lastAt) {
+    const elapsedSeconds = (Date.now() - lastAt.getTime()) / 1000;
+    if (elapsedSeconds < cooldownSeconds) {
+      return { limited: true, retryAfter: Math.ceil(cooldownSeconds - elapsedSeconds) };
+    }
+  }
+
+  try {
+    // Dot-notation field path so `merge: true` updates only this
+    // tool's timestamp inside the map, instead of replacing the whole
+    // generationCooldowns object and wiping out the other tools' entries.
+    await userRef.set(
+      { [`generationCooldowns.${tool}`]: admin.firestore.FieldValue.serverTimestamp() },
+      { merge: true }
+    );
+  } catch (err) {
+    // If the stamp write fails, fail open rather than blocking a
+    // legitimate request over a logging/throttling concern.
+    console.error(`Failed to record generation cooldown for tool "${tool}":`, err);
+  }
+
+  return { limited: false };
 }
 
 /**
@@ -111,12 +180,30 @@ async function checkAccess(req, tool) {
         error: 'This tool is included with Brane Pro. Contact us to unlock it.'
       };
     }
+
+    const cooldown = await enforceCooldown(userRef, userData, tool);
+    if (cooldown.limited) {
+      return {
+        ok: false,
+        status: 429,
+        error: `You're generating a bit fast — please wait ${cooldown.retryAfter}s and try again.`
+      };
+    }
+
     return { ok: true, uid };
   }
 
   // Brand tool: unlimited for Pro, metered for Free.
   if (tool === 'brand') {
     if (isPro) {
+      const cooldown = await enforceCooldown(userRef, userData, tool);
+      if (cooldown.limited) {
+        return {
+          ok: false,
+          status: 429,
+          error: `You're generating a bit fast — please wait ${cooldown.retryAfter}s and try again.`
+        };
+      }
       return { ok: true, uid };
     }
 
@@ -132,6 +219,15 @@ async function checkAccess(req, tool) {
         ok: false,
         status: 403,
         error: `You've used your ${FREE_BRAND_GENERATIONS_PER_MONTH} free brand generations this month. Contact us to upgrade to Pro for unlimited generations.`
+      };
+    }
+
+    const cooldown = await enforceCooldown(userRef, userData, tool);
+    if (cooldown.limited) {
+      return {
+        ok: false,
+        status: 429,
+        error: `You're generating a bit fast — please wait ${cooldown.retryAfter}s and try again.`
       };
     }
 
