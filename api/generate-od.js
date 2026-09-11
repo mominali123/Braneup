@@ -6,9 +6,15 @@
 // api/_lib/checkAccess.js — see that file for the Firestore schema.
 
 const { checkAccess } = require('./_lib/checkAccess');
+const { capLength } = require('./_lib/inputLimits');
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MODEL = 'openai/gpt-4o-mini';
+// This is the largest schema of the four tools (contextual + structural +
+// culture + recommendations, each with many nested fields), so it gets the
+// highest cap. Adjust upward only if legitimate responses start getting cut
+// off (surfaces as a JSON parse error in the logs, not a silent truncation).
+const MAX_OUTPUT_TOKENS = 4000;
 
 const SYSTEM_PROMPT = `You are Brane OD, an elite organizational development (OD) consultant and organizational designer. Your goal is to transform a short brief about a business into a comprehensive, deeply structured organizational development diagnostic covering organizational design (contextual and structural dimensions) and organizational culture, grounded in classic OD/organizational-theory frameworks (Daft's contextual & structural dimensions, Robbins' culture dimensions, Cameron & Quinn's competing values framework).
 You do not write generic filler or platitudes. Every recommendation must be highly tailored, practical, and immediately actionable for the specific organization described in the brief.
@@ -150,12 +156,12 @@ module.exports = async (req, res) => {
   }
   body = body || {};
 
-  const organizationName = (body.organizationName || '').toString().trim();
-  const description = (body.description || '').toString().trim();
-  const industry = (body.industry || '').toString().trim();
-  const size = (body.size || '').toString().trim();
-  const stage = (body.stage || '').toString().trim();
-  const challenge = (body.challenge || '').toString().trim();
+  const organizationName = capLength(body.organizationName, 120);
+  const description = capLength(body.description, 1200);
+  const industry = capLength(body.industry, 200);
+  const size = capLength(body.size, 200);
+  const stage = capLength(body.stage, 300);
+  const challenge = capLength(body.challenge, 1200);
 
   if (!organizationName || !description) {
     return res.status(400).json({ error: 'organizationName and description are required.' });
@@ -180,6 +186,7 @@ What's driving this OD effort: ${challenge || 'not specified — infer the likel
       body: JSON.stringify({
         model: MODEL,
         temperature: 0.6,
+        max_tokens: MAX_OUTPUT_TOKENS,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: brief }

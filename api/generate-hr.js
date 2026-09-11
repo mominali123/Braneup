@@ -6,9 +6,14 @@
 // api/_lib/checkAccess.js — see that file for the Firestore schema.
 
 const { checkAccess } = require('./_lib/checkAccess');
+const { capLength } = require('./_lib/inputLimits');
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MODEL = 'openai/gpt-4o-mini';
+// Smallest schema of the four tools, so it gets the lowest cap. Adjust
+// upward only if legitimate responses start getting cut off (surfaces as
+// a JSON parse error in the logs, not a silent truncation).
+const MAX_OUTPUT_TOKENS = 2000;
 
 const SYSTEM_PROMPT = `You are Brane HR, an elite HR consultant who writes precise, professional job descriptions for companies. Your goal is to transform a short brief about a role into a comprehensive, well-structured job description document.
 You do not write generic filler or platitudes. Every section must be highly tailored, practical, and immediately usable by an HR department to post the role and evaluate candidates against it.
@@ -71,13 +76,13 @@ module.exports = async (req, res) => {
   }
   body = body || {};
 
-  const jobTitle = (body.jobTitle || '').toString().trim();
-  const department = (body.department || '').toString().trim();
-  const reportingTo = (body.reportingTo || '').toString().trim();
-  const description = (body.description || '').toString().trim();
-  const experience = (body.experience || '').toString().trim();
-  const skills = (body.skills || '').toString().trim();
-  const interaction = (body.interaction || '').toString().trim();
+  const jobTitle = capLength(body.jobTitle, 120);
+  const department = capLength(body.department, 150);
+  const reportingTo = capLength(body.reportingTo, 150);
+  const description = capLength(body.description, 1200);
+  const experience = capLength(body.experience, 300);
+  const skills = capLength(body.skills, 400);
+  const interaction = capLength(body.interaction, 400);
 
   if (!jobTitle || !description) {
     return res.status(400).json({ error: 'jobTitle and description are required.' });
@@ -106,6 +111,7 @@ Today's date, for versionInfo.dateDocumented: ${todayStr}`;
       body: JSON.stringify({
         model: MODEL,
         temperature: 0.6,
+        max_tokens: MAX_OUTPUT_TOKENS,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: brief }

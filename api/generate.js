@@ -6,9 +6,15 @@
 // api/_lib/checkAccess.js — see that file for the Firestore schema.
 
 const { checkAccess } = require('./_lib/checkAccess');
+const { capLength } = require('./_lib/inputLimits');
 
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const MODEL = 'openai/gpt-4o-mini';
+// Generous cap for this schema's expected output (strategy + positioning +
+// visual system + verbal system + brand protection). Adjust upward only if
+// legitimate responses start getting cut off (surfaces as a JSON parse
+// error in the logs, not a silent truncation).
+const MAX_OUTPUT_TOKENS = 3000;
 
 const SYSTEM_PROMPT = `You are Brane, an elite, enterprise-grade brand strategist and visual identity designer. Your goal is to transform a simple business brief into a comprehensive, cohesive, and deeply structured brand identity system.
 You do not write generic filler or platitudes. Every piece of strategy must be highly tailored, practical, and immediately actionable for a business looking to launch.
@@ -110,11 +116,11 @@ module.exports = async (req, res) => {
   }
   body = body || {};
 
-  const businessName = (body.businessName || '').toString().trim();
-  const description = (body.description || '').toString().trim();
-  const audience = (body.audience || '').toString().trim();
-  const values = (body.values || '').toString().trim();
-  const tone = (body.tone || '').toString().trim();
+  const businessName = capLength(body.businessName, 120);
+  const description = capLength(body.description, 1200);
+  const audience = capLength(body.audience, 300);
+  const values = capLength(body.values, 300);
+  const tone = capLength(body.tone, 300);
 
   if (!businessName || !description) {
     return res.status(400).json({ error: 'businessName and description are required.' });
@@ -138,6 +144,7 @@ Desired tone: ${tone || 'not specified — choose what fits best'}`;
       body: JSON.stringify({
         model: MODEL,
         temperature: 0.7,
+        max_tokens: MAX_OUTPUT_TOKENS,
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
           { role: 'user', content: brief }
