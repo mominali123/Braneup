@@ -1,0 +1,42 @@
+{
+  "rewrites": [
+    {
+      "source": "/od",
+      "destination": "/od.html"
+    },
+    {
+      "source": "/hr",
+      "destination": "/hr.html"
+    },
+    {
+      "source": "/scan",
+      "destination": "/scan.html"
+    },
+    {
+      "source": "/app",
+      "destination": "/app.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/od.html",
+      "destination": "/od",
+      "permanent": true
+    },
+    {
+      "source": "/hr.html",
+      "destination": "/hr",
+      "permanent": true
+    },
+    {
+      "source": "/scan.html",
+      "destination": "/scan",
+      "permanent": true
+    },
+    {
+      "source": "/app.html",
+      "destination": "/app",
+      "permanent": true
+    }
+  ]
+}
