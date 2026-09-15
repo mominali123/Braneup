@@ -15,6 +15,18 @@
     {
       "source": "/app",
       "destination": "/app.html"
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/privacy-policy.html"
+    },
+    {
+      "source": "/terms-and-conditions",
+      "destination": "/terms-and-conditions.html"
+    },
+    {
+      "source": "/refund-policy",
+      "destination": "/refund-policy.html"
     }
   ],
   "redirects": [
@@ -36,6 +48,21 @@
     {
       "source": "/app.html",
       "destination": "/app",
+      "permanent": true
+    },
+    {
+      "source": "/privacy-policy.html",
+      "destination": "/privacy-policy",
+      "permanent": true
+    },
+    {
+      "source": "/terms-and-conditions.html",
+      "destination": "/terms-and-conditions",
+      "permanent": true
+    },
+    {
+      "source": "/refund-policy.html",
+      "destination": "/refund-policy",
       "permanent": true
     }
   ]
