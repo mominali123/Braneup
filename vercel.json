@@ -17,6 +17,10 @@
       "destination": "/app.html"
     },
     {
+      "source": "/profile",
+      "destination": "/profile.html"
+    },
+    {
       "source": "/privacy-policy",
       "destination": "/privacy-policy.html"
     },
@@ -48,6 +52,11 @@
     {
       "source": "/app.html",
       "destination": "/app",
+      "permanent": true
+    },
+    {
+      "source": "/profile.html",
+      "destination": "/profile",
       "permanent": true
     },
     {
