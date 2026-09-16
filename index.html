@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Braneup Business Consultancy</title>
-<meta name="description" content="Braneup is an HI-powered business consultancy" />
+<meta name="description" content="Braneup is an AI-powered business consultancy" />
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -56,6 +56,16 @@
 
   a { color: inherit; text-decoration: none; }
   ul { list-style: none; margin: 0; padding: 0; }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    padding: 0; margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+  }
 
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
@@ -421,7 +431,7 @@
   }
   .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-sm); border-color: var(--line-soft); }
   .feature-card .ficon { width: 34px; height: 34px; color: var(--green); margin-bottom: 16px; }
-  .feature-card h4 { font-size: 15.5px; font-weight: 700; margin-bottom: 6px; }
+  .feature-card .fc-title { font-family: var(--font-display); letter-spacing: -0.02em; color: var(--ink); font-size: 15.5px; font-weight: 700; margin-bottom: 6px; }
   .feature-card p { font-size: 13.5px; color: var(--ink-soft); line-height: 1.55; margin: 0; }
 
   /* ---------- Section: dark ---------- */
@@ -485,7 +495,7 @@
   @media (max-width: 860px) { .benefit-grid { grid-template-columns: 1fr; } }
   .benefit-card { padding: 6px; }
   .benefit-card .bicon { width: 30px; height: 30px; color: var(--green-light); margin-bottom: 14px; }
-  .benefit-card h4 { font-size: 16.5px; font-weight: 700; margin-bottom: 8px; color: #fff; }
+  .benefit-card .bc-title { font-family: var(--font-display); letter-spacing: -0.02em; font-size: 16.5px; font-weight: 700; margin-bottom: 8px; color: #fff; }
   .benefit-card p { font-size: 14px; line-height: 1.6; color: rgba(255,255,255,0.6); margin: 0; }
 
   /* ---------- Trust ---------- */
@@ -558,7 +568,6 @@
 
   /* ---------- Fluid scaling safeguards (very small / very large screens) ---------- */
 
-  /* Keep content from stretching too wide and thin on ultra-wide / large monitors */
   @media (min-width: 1440px) {
     .section-inner,
     .cta-final { max-width: 1240px; }
@@ -574,7 +583,6 @@
     html { font-size: 17px; }
   }
 
-  /* Tighten spacing/type so nothing feels oversized or cramped on very small phones */
   @media (max-width: 380px) {
     .hero { padding-left: 16px; padding-right: 16px; }
     .section { padding-left: 16px; padding-right: 16px; }
@@ -586,7 +594,6 @@
     .steps, .benefit-grid, .metrics, .testimonials { gap: 20px; }
   }
 
-  /* Keep the header row from forcing horizontal overflow on narrow phones */
   @media (max-width: 420px) {
     header.nav { padding-left: 16px; padding-right: 16px; gap: 8px; }
     .brandmark span.wordmark { font-size: 15px; }
@@ -594,7 +601,6 @@
     .nav-actions .btn { padding: 9px 14px; font-size: 13px; }
   }
 
-  /* Respect very short/landscape viewports so the splash and hero don't overflow vertically */
   @media (max-height: 480px) and (orientation: landscape) {
     #splash { gap: 10px; }
     #splash .shield { width: 40px; height: 40px; }
@@ -1196,6 +1202,7 @@
           <circle cx="12" cy="8" r="4"/>
           <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
         </svg>
+        <span class="sr-only">Profile</span>
       </a>
       <a class="btn btn-primary" href="app.html">Get started</a>
     </div>
@@ -1209,7 +1216,7 @@
         <h1 class="headline">Build the foundations of your business with HI.</h1>
         <p class="subheadline">Braneup runs on Hybrid Intelligence — AI paired with real consulting frameworks — so it's one step ahead of generic AI. Organizational structure, people strategy, market intelligence, and brand identity, built from a single brief.</p>
         <div class="hero-ctas">
-          <a class="btn btn-primary btn-lg" href="app.html">Get started</a>
+          <a class="btn btn-primary btn-lg" href="app.html">Start your brief</a>
           <a class="btn btn-ghost btn-lg" href="#brand">See example →</a>
         </div>
       </div>
@@ -1241,7 +1248,7 @@
 
   <section class="section" style="padding-top:0;">
     <div class="section-narrow reveal">
-      <p style="font-size:17px; line-height:1.7; color:var(--ink-soft); text-align:center;">Most businesses don't fail because the idea was wrong — they fail because the fundamentals were never built properly. Braneup is Hybrid Intelligence (HI): AI paired with real consulting frameworks, one step ahead of AI alone. Four systems, one professional standard — give Braneup a brief, and it works the way a consultant would.</p>
+      <p style="font-size:17px; line-height:1.7; color:var(--ink-soft); text-align:center;">Most businesses don't fail because the idea was wrong — they fail because the foundations were never built properly. Braneup is Hybrid Intelligence (HI): AI paired with real consulting frameworks, one step ahead of AI alone. Four systems, one professional standard — give Braneup a brief, and it works the way a consultant would.</p>
     </div>
   </section>
 
@@ -1257,7 +1264,7 @@
       <div class="doc-grid" style="align-items:center;">
         <div>
           <span class="eyebrow">Organizational Development</span>
-          <h2 style="margin:10px 0 14px; text-align:left;">Give it your team.<br>Get the structure it's missing.</h2>
+          <h2 style="margin:10px 0 14px; text-align:left;">See how your team really works.<br>Get the structure it's missing.</h2>
           <p style="font-size:15px; line-height:1.6; color:var(--ink-soft); margin:0 0 22px; max-width:46ch;">Growth exposes what a startup never had time to design. Braneup OD maps how your organization really works and hands you a sequenced, prioritized plan to fix it.</p>
           <ul class="pricing-features" style="margin-bottom:26px;">
             <li><svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><strong>Structure map</strong>&nbsp;— how authority &amp; reporting lines actually flow</li>
@@ -1294,7 +1301,7 @@
         </div>
         <div style="order:1;">
           <span class="eyebrow">People strategy &amp; policy</span>
-          <h2 style="margin:10px 0 14px; text-align:left;">Give it your team.<br>Get an HR function that runs itself.</h2>
+          <h2 style="margin:10px 0 14px; text-align:left;">Give your people function a foundation.<br>Get an HR system that runs itself.</h2>
           <p style="font-size:15px; line-height:1.6; color:var(--ink-soft); margin:0 0 22px; max-width:46ch;">Braneup HR builds the function properly from the start: roles, hiring standards, core policies, and the compliance groundwork a real HR department would put in place.</p>
           <ul class="pricing-features" style="margin-bottom:26px;">
             <li><svg class="pf-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg><strong>Role &amp; job description library</strong>, built around your structure</li>
@@ -1411,42 +1418,42 @@
       <div class="feature-grid">
         <div class="feature-card reveal">
           <svg class="ficon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
-          <h4>Brand strategy</h4>
+          <div class="fc-title">Brand strategy</div>
           <p>Purpose, vision, mission, and the values that hold it together.</p>
         </div>
         <div class="feature-card reveal">
           <svg class="ficon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20V10M12 10l-6 6M12 10l6 6M12 10V4"/></svg>
-          <h4>Positioning</h4>
+          <div class="fc-title">Positioning</div>
           <p>Who it's for, what pain it solves, and what sets it apart.</p>
         </div>
         <div class="feature-card reveal">
           <svg class="ficon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 000 18"/></svg>
-          <h4>Color palette</h4>
+          <div class="fc-title">Color palette</div>
           <p>A working palette with a role for every color, not just five hex codes.</p>
         </div>
         <div class="feature-card reveal">
           <svg class="ficon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 6h16M6 6v14M18 6v14M9 6l3-3 3 3"/></svg>
-          <h4>Typography pairing</h4>
+          <div class="fc-title">Typography pairing</div>
           <p>A display and body face chosen to fit the tone, paired and ready.</p>
         </div>
         <div class="feature-card reveal">
           <svg class="ficon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-          <h4>Tone of voice</h4>
+          <div class="fc-title">Tone of voice</div>
           <p>Traits to write toward, with what to use and what to avoid.</p>
         </div>
         <div class="feature-card reveal">
           <svg class="ficon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 12h16M4 6h16M4 18h10"/></svg>
-          <h4>Tagline</h4>
+          <div class="fc-title">Tagline</div>
           <p>A line that carries the brand's promise in a single breath.</p>
         </div>
         <div class="feature-card reveal">
           <svg class="ficon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 5h18M3 12h18M3 19h18"/></svg>
-          <h4>Website messaging</h4>
+          <div class="fc-title">Website messaging</div>
           <p>Hero header, sub header, and a bio ready to paste in.</p>
         </div>
         <div class="feature-card reveal">
           <svg class="ficon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg>
-          <h4>Brand protection guidance</h4>
+          <div class="fc-title">Brand protection guidance</div>
           <p>A trademark safety read and domain suggestions worth checking first.</p>
         </div>
       </div>
@@ -1465,32 +1472,32 @@
       <div class="benefit-grid">
         <div class="benefit-card reveal">
           <svg class="bicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg>
-          <h4>From brief to system in minutes</h4>
+          <div class="bc-title">From brief to system in minutes</div>
           <p>No weeks of back-and-forth before you see anything real.</p>
         </div>
         <div class="benefit-card reveal">
           <svg class="bicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg>
-          <h4>Every discipline, one brief</h4>
+          <div class="bc-title">Every discipline, one brief</div>
           <p>Structure, people, market, and brand all reasoned from the same input.</p>
         </div>
         <div class="benefit-card reveal">
           <svg class="bicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 12h16M4 6h16M4 18h10"/></svg>
-          <h4>Consistent across the business</h4>
+          <div class="bc-title">Consistent across the business</div>
           <p>One strategic read, reused everywhere from your org chart to your homepage.</p>
         </div>
         <div class="benefit-card reveal">
           <svg class="bicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M4 9h16M9 9v11"/></svg>
-          <h4>Reports you can actually use</h4>
+          <div class="bc-title">Reports you can actually use</div>
           <p>Organized for a co-founder, investor, or new hire to pick up cold.</p>
         </div>
         <div class="benefit-card reveal">
           <svg class="bicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/></svg>
-          <h4>Professional without the invoice</h4>
+          <div class="bc-title">Professional without the invoice</div>
           <p>The outcome of a real consulting engagement, without the retainer.</p>
         </div>
         <div class="benefit-card reveal">
           <svg class="bicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M12 20V10M12 10l-6 6M12 10l6 6M12 10V4"/></svg>
-          <h4>Built for founders and growing teams</h4>
+          <div class="bc-title">Built for founders and growing teams</div>
           <p>For the stage before you can hire a COO, HR lead, or strategist.</p>
         </div>
       </div>
@@ -1675,7 +1682,7 @@
       <h2>Build a business that holds up under real use.</h2>
       <p>Start with a simple brief and receive the professional systems to back it up.</p>
       <div class="hero-ctas">
-        <a class="btn btn-primary btn-lg" href="app.html">Get started</a>
+        <a class="btn btn-primary btn-lg" href="app.html">Get started now</a>
       </div>
     </div>
   </section>
@@ -1686,7 +1693,7 @@
         <path fill="#008060" d="M24 4 L6.7 14 V34 L24 44 Z"/>
         <path fill="#B8BCC2" d="M24 4 L41.3 14 V34 L24 44 Z"/>
       </svg>
-      Braneup — Business, done the professional way.
+      Braneup — an AI business consultancy, done the professional way.
     </div>
     <div class="flinks">
       <a href="mailto:mail@braneup.com">mail@braneup.com</a>
