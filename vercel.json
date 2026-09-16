@@ -51,7 +51,7 @@
     },
     {
       "source": "/app.html",
-      "destination": "/app",
+      "destination": "/brand",
       "permanent": true
     },
     {
