@@ -442,7 +442,7 @@
   </header>
 
   <h1 class="hero">Your profile</h1>
-  <p class="sub">Account details, your subscription, monthly usage, and everything you've saved across Brand Identity, OD, HR, and Scan.</p>
+  <p class="sub">Account details and everything you've saved across Brand Identity, OD, HR, and Scan.</p>
 
   <!-- Account -->
   <div class="card">
@@ -460,25 +460,6 @@
       <span class="k">Sign-in method</span>
       <span class="v" id="acctProvider">—</span>
     </div>
-  </div>
-
-  <!-- Subscription -->
-  <div class="card">
-    <div class="card-title">Subscription</div>
-    <div class="card-sub">Your Brane Pro plan status.</div>
-    <div class="kv-row" style="border-top:none; padding-top:0;">
-      <span class="k">Plan</span>
-      <span class="v"><span class="badge" id="planBadge">—</span></span>
-    </div>
-    <p class="status-line" id="subStatusLine" style="margin-top:14px;">Checking plan…</p>
-    <div class="btn-row" id="subButtonRow"></div>
-  </div>
-
-  <!-- Usage -->
-  <div class="card" id="usageCard">
-    <div class="card-title">Monthly usage</div>
-    <div class="card-sub">Brand generations used this billing month.</div>
-    <div id="usageBody">Loading…</div>
   </div>
 
   <!-- Saved items -->
@@ -556,7 +537,6 @@ auth.onAuthStateChanged((user) => {
 
 async function loadEverything(user) {
   renderAccount(user);
-  await loadUserDoc(user);
   loadModule(user, 'brands', 'brandsList', 'brandsCount', 'name', 'app.html');
   loadModule(user, 'ods', 'odsList', 'odsCount', 'name', 'od.html');
   loadModule(user, 'jds', 'jdsList', 'jdsCount', 'name', 'hr.html');
@@ -570,69 +550,6 @@ function renderAccount(user) {
   document.getElementById('acctCreated').textContent = created ? created.toLocaleDateString() : '—';
   const providerId = (user.providerData && user.providerData[0] && user.providerData[0].providerId) || 'password';
   document.getElementById('acctProvider').textContent = providerId === 'google.com' ? 'Google' : 'Email & password';
-}
-
-function isProActive(userData) {
-  return !!(userData && userData.proStatus === 'active');
-}
-
-let cachedUserData = {};
-
-async function loadUserDoc(user) {
-  const planBadge = document.getElementById('planBadge');
-  const statusLine = document.getElementById('subStatusLine');
-  const buttonRow = document.getElementById('subButtonRow');
-  const usageBody = document.getElementById('usageBody');
-  const usageCard = document.getElementById('usageCard');
-
-  try {
-    const snap = await db.collection('users').doc(user.uid).get();
-    const data = snap.exists ? snap.data() : {};
-    cachedUserData = data;
-    const pro = isProActive(data);
-
-    // Plan badge
-    planBadge.textContent = pro ? 'Pro' : 'Free';
-    planBadge.className = 'badge ' + (pro ? 'badge-pro' : 'badge-free');
-
-    // Status line + buttons
-    buttonRow.innerHTML = '';
-    statusLine.innerHTML = pro
-      ? 'You have Pro access.'
-      : 'You are on the <strong>Free</strong> plan — 5 brand generations per month.';
-    if (!pro) {
-      buttonRow.innerHTML = '<a class="btn btn-primary" href="mailto:braneup@gmail.com?subject=Upgrade%20to%20Brane%20Pro">Upgrade to Pro</a>';
-    }
-
-    // Usage — only meaningful on the Free plan (brand tool is metered,
-    // OD/HR/Scan are Pro-only per api/_lib/checkAccess.js)
-    if (pro) {
-      usageCard.style.display = 'none';
-    } else {
-      usageCard.style.display = '';
-      const now = new Date();
-      const periodStart = data.brandGenerationsPeriodStart
-        ? (data.brandGenerationsPeriodStart.toDate ? data.brandGenerationsPeriodStart.toDate() : new Date(data.brandGenerationsPeriodStart))
-        : null;
-      const inCurrentPeriod = periodStart && periodStart.getUTCFullYear() === now.getUTCFullYear() && periodStart.getUTCMonth() === now.getUTCMonth();
-      const used = inCurrentPeriod ? (data.brandGenerationsUsed || 0) : 0;
-      const limit = 5;
-      const pct = Math.min(100, Math.round((used / limit) * 100));
-
-      usageBody.innerHTML = `
-        <div class="kv-row" style="border-top:none; padding-top:0;">
-          <span class="k">Brand generations</span>
-          <span class="v">${used} / ${limit}</span>
-        </div>
-        <div class="usage-track"><div class="usage-fill" style="width:${pct}%;"></div></div>
-        <div class="usage-caption">Resets at the start of each calendar month.</div>
-      `;
-    }
-  } catch (err) {
-    console.error('Failed to load account/plan data:', err);
-    statusLine.textContent = 'Could not load plan status.';
-    usageBody.textContent = 'Could not load usage.';
-  }
 }
 
 async function loadModule(user, collectionName, listElId, countElId, nameField, toolPage) {
