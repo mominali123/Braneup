@@ -1081,6 +1081,7 @@ auth.onAuthStateChanged((user) => {
     authScreen.style.display = 'none';
     appGate.style.display = '';
     signedInEmail.textContent = user.email || '';
+    checkUrlForSavedItem();
   } else {
     authScreen.style.display = '';
     appGate.style.display = 'none';
@@ -1152,6 +1153,51 @@ function brandsCollection() {
 }
 function odsCollection() {
   return db.collection('users').doc(auth.currentUser.uid).collection('ods');
+}
+
+// =====================================================================
+// Deep-link: open a specific saved item directly from profile.html's
+// "Open" link (?view=brands&id=<docId>), instead of only via the Saves
+// modal's "View" button. Runs once, right after sign-in is confirmed.
+// =====================================================================
+let urlSavedItemChecked = false;
+
+async function loadSavedBrandById(id) {
+  try {
+    const doc = await brandsCollection().doc(id).get();
+    if (!doc.exists) return;
+    const d = doc.data();
+    currentBrandData = d.data;
+    renderBrand(d.data);
+    statusEl.textContent = 'Done';
+    shield.classList.remove('loading');
+    pdfDownloadRow.classList.add('show');
+    downloadPdfBtn.style.display = 'inline-flex';
+    downloadPdfBtn.disabled = true;
+    downloadPdfBtn.textContent = 'Preparing PDF…';
+    saveBrandBtn.classList.add('show');
+    pdfHint.textContent = 'Preparing your brand guidelines PDF…';
+    generateBrandPDF(d.data).then(() => {
+      downloadPdfBtn.disabled = false;
+      downloadPdfBtn.textContent = '⬇ Download PDF';
+      pdfHint.textContent = pdfFileName;
+    }).catch(pdfErr => {
+      console.error('PDF generation failed:', pdfErr);
+      downloadPdfBtn.textContent = 'PDF unavailable';
+    });
+    resultEl.scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    console.error('Could not load saved brand from URL:', err);
+  }
+}
+
+function checkUrlForSavedItem() {
+  if (urlSavedItemChecked) return;
+  urlSavedItemChecked = true;
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('view') === 'brands' && params.get('id')) {
+    loadSavedBrandById(params.get('id'));
+  }
 }
 
 saveBrandBtn.addEventListener('click', async () => {
