@@ -1026,6 +1026,7 @@ auth.onAuthStateChanged((user) => {
     authScreen.style.display = 'none';
     appGate.style.display = '';
     signedInEmail.textContent = user.email || '';
+    checkUrlForSavedItem();
   } else {
     authScreen.style.display = '';
     appGate.style.display = 'none';
@@ -1233,6 +1234,53 @@ printBtn.addEventListener('click', () => triggerPdfDownload(scanPdfBlobUrl, scan
 
 function scansCollection() {
   return db.collection('users').doc(auth.currentUser.uid).collection('scans');
+}
+
+// =====================================================================
+// Deep-link: open a specific saved item directly from profile.html's
+// "Open" link (?view=scans&id=<docId>), instead of only via the Saves
+// modal's "View" button. Runs once, right after sign-in is confirmed.
+// =====================================================================
+let urlSavedItemChecked = false;
+
+async function loadSavedScanById(id) {
+  try {
+    const doc = await scansCollection().doc(id).get();
+    if (!doc.exists) return;
+    const d = doc.data();
+    currentScanData = d.data;
+    renderScan(d.data);
+    statusEl.textContent = 'Done';
+    shield.classList.remove('loading');
+    printRow.classList.add('show');
+    saveScanBtn.classList.add('show');
+
+    printBtn.disabled = true;
+    printBtn.textContent = 'Preparing PDF…';
+    pdfHint.textContent = 'Preparing your scan PDF…';
+    generateScanPDF(d.data).then(() => {
+      printBtn.disabled = false;
+      printBtn.textContent = '⬇ Download PDF';
+      pdfHint.textContent = scanPdfFileName;
+    }).catch(pdfErr => {
+      console.error('PDF generation failed:', pdfErr);
+      printBtn.textContent = 'PDF unavailable';
+      pdfHint.textContent = 'Could not generate the PDF this time — try rebuilding the scan.';
+    });
+
+    resultEl.scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    console.error('Could not load saved scan from URL:', err);
+  }
+}
+
+function checkUrlForSavedItem() {
+  if (urlSavedItemChecked) return;
+  urlSavedItemChecked = true;
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('view') === 'scans' && params.get('id')) {
+    loadSavedScanById(params.get('id'));
+  }
 }
 
 saveScanBtn.addEventListener('click', async () => {
