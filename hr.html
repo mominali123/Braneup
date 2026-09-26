@@ -1027,6 +1027,7 @@ auth.onAuthStateChanged((user) => {
     authScreen.style.display = 'none';
     appGate.style.display = '';
     signedInEmail.textContent = user.email || '';
+    checkUrlForSavedItem();
   } else {
     authScreen.style.display = '';
     appGate.style.display = 'none';
@@ -1183,6 +1184,53 @@ printBtn.addEventListener('click', () => triggerPdfDownload(jdPdfBlobUrl, jdPdfF
 
 function jdsCollection() {
   return db.collection('users').doc(auth.currentUser.uid).collection('jds');
+}
+
+// =====================================================================
+// Deep-link: open a specific saved item directly from profile.html's
+// "Open" link (?view=jds&id=<docId>), instead of only via the Saves
+// modal's "View" button. Runs once, right after sign-in is confirmed.
+// =====================================================================
+let urlSavedItemChecked = false;
+
+async function loadSavedJdById(id) {
+  try {
+    const doc = await jdsCollection().doc(id).get();
+    if (!doc.exists) return;
+    const d = doc.data();
+    currentJdData = d.data;
+    renderJD(d.data);
+    statusEl.textContent = 'Done';
+    shield.classList.remove('loading');
+    printRow.classList.add('show');
+    saveJdBtn.classList.add('show');
+
+    printBtn.disabled = true;
+    printBtn.textContent = 'Preparing PDF…';
+    pdfHint.textContent = 'Preparing your job description PDF…';
+    generateJdPDF(d.data).then(() => {
+      printBtn.disabled = false;
+      printBtn.textContent = '⬇ Download PDF';
+      pdfHint.textContent = jdPdfFileName;
+    }).catch(pdfErr => {
+      console.error('PDF generation failed:', pdfErr);
+      printBtn.textContent = 'PDF unavailable';
+      pdfHint.textContent = 'Could not generate the PDF this time — try rebuilding the description.';
+    });
+
+    resultEl.scrollIntoView({ behavior: 'smooth' });
+  } catch (err) {
+    console.error('Could not load saved job description from URL:', err);
+  }
+}
+
+function checkUrlForSavedItem() {
+  if (urlSavedItemChecked) return;
+  urlSavedItemChecked = true;
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('view') === 'jds' && params.get('id')) {
+    loadSavedJdById(params.get('id'));
+  }
 }
 
 saveJdBtn.addEventListener('click', async () => {
